@@ -59,10 +59,13 @@ export default function InvoiceGenerator() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto grid gap-8 p-8 lg:grid-cols-2">
-        <div className="space-y-8">
-          <h1 className="text-3xl font-semibold">Create your invoice</h1>
+        <article className="space-y-8">
+          <header>
+            <h1 className="text-3xl font-semibold">Create your invoice</h1>
+            <meta name="description" content="Generate a professional invoice instantly with our free online invoice generator" />
+          </header>
           
           <CompanyDetailsForm
             title="Your info"
@@ -76,7 +79,7 @@ export default function InvoiceGenerator() {
             onChange={(client) => setInvoiceData({ ...invoiceData, client })}
           />
 
-          <div className="space-y-4">
+          <section className="space-y-4" aria-label="Invoice Information">
             <h2 className="text-lg font-medium">Invoice info</h2>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
@@ -111,12 +114,14 @@ export default function InvoiceGenerator() {
                 />
               </div>
             </div>
-          </div>
+          </section>
 
-          <InvoiceItems
-            items={invoiceData.items}
-            onItemsChange={(items) => setInvoiceData({ ...invoiceData, items })}
-          />
+          <section aria-label="Invoice Items">
+            <InvoiceItems
+              items={invoiceData.items}
+              onItemsChange={(items) => setInvoiceData({ ...invoiceData, items })}
+            />
+          </section>
 
           <div className="grid grid-cols-2 gap-8">
             <div className="space-y-2">
@@ -148,9 +153,9 @@ export default function InvoiceGenerator() {
               </div>
             </div>
           </div>
-        </div>
+        </article>
 
-        <div className="space-y-4">
+        <aside className="space-y-4">
           <div ref={invoiceRef}>
             <InvoicePreview data={invoiceData} />
           </div>
@@ -183,9 +188,9 @@ export default function InvoiceGenerator() {
               </Button>
             </div>
           </div> */}
-        </div>
+        </aside>
       </div>
-    </div>
+    </main>
   )
 }
 
