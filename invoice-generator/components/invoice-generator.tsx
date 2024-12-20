@@ -76,139 +76,118 @@ export default function InvoiceGenerator() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto grid gap-8 p-8 lg:grid-cols-2">
-        <article className="space-y-8">
-          <TemplateSelector
-            selected={selectedTemplate}
-            onSelect={setSelectedTemplate}
-          />
-          <header>
-            <h1 className="text-3xl font-semibold">Create your invoice</h1>
-            <meta name="description" content="Generate a professional invoice instantly with our free online invoice generator" />
-          </header>
-          
-          <CompanyDetailsForm
-            title="Your info"
-            data={invoiceData.sender}
-            onChange={(sender) => setInvoiceData({ ...invoiceData, sender })}
-          />
-
-          <CompanyDetailsForm
-            title="Client info"
-            data={invoiceData.client}
-            onChange={(client) => setInvoiceData({ ...invoiceData, client })}
-          />
-
-          <section className="space-y-4" aria-label="Invoice Information">
-            <h2 className="text-lg font-medium">Invoice info</h2>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="invoice-number">Invoice #</Label>
-                <Input
-                  id="invoice-number"
-                  value={invoiceData.invoiceNumber}
-                  onChange={(e) =>
-                    setInvoiceData({ ...invoiceData, invoiceNumber: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="issue-date">Issued date</Label>
-                <Input
-                  id="issue-date"
-                  type="date"
-                  value={invoiceData.issueDate}
-                  onChange={(e) =>
-                    setInvoiceData({ ...invoiceData, issueDate: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="due-date">Due date</Label>
-                <Input
-                  id="due-date"
-                  value={invoiceData.dueDate}
-                  onChange={(e) =>
-                    setInvoiceData({ ...invoiceData, dueDate: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-          </section>
-
-          <section aria-label="Invoice Items">
-            <InvoiceItems
-              items={invoiceData.items}
-              onItemsChange={(items) => setInvoiceData({ ...invoiceData, items })}
+      <div className="container mx-auto p-8 space-y-8">
+        <TemplateSelector
+          selected={selectedTemplate}
+          onSelect={setSelectedTemplate}
+        />
+        <div className="grid gap-8 lg:grid-cols-2">
+          <article className="space-y-8">
+            <header>
+              <h1 className="text-3xl font-semibold">Create your invoice</h1>
+              <meta name="description" content="Generate a professional invoice instantly with our free online invoice generator" />
+            </header>
+            
+            <CompanyDetailsForm
+              title="Your info"
+              data={invoiceData.sender}
+              onChange={(sender) => setInvoiceData({ ...invoiceData, sender })}
             />
-          </section>
 
-          <div className="grid grid-cols-2 gap-8">
-            <div className="space-y-2">
-              <Label htmlFor="memo">Memo</Label>
-              <Textarea
-                id="memo"
-                placeholder="Additional notes..."
-                value={invoiceData.memo}
-                onChange={(e) =>
-                  setInvoiceData({ ...invoiceData, memo: e.target.value })
-                }
+            <CompanyDetailsForm
+              title="Client info"
+              data={invoiceData.client}
+              onChange={(client) => setInvoiceData({ ...invoiceData, client })}
+            />
+
+            <section className="space-y-4" aria-label="Invoice Information">
+              <h2 className="text-lg font-medium">Invoice info</h2>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="invoice-number">Invoice #</Label>
+                  <Input
+                    id="invoice-number"
+                    value={invoiceData.invoiceNumber}
+                    onChange={(e) =>
+                      setInvoiceData({ ...invoiceData, invoiceNumber: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="issue-date">Issued date</Label>
+                  <Input
+                    id="issue-date"
+                    type="date"
+                    value={invoiceData.issueDate}
+                    onChange={(e) =>
+                      setInvoiceData({ ...invoiceData, issueDate: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="due-date">Due date</Label>
+                  <Input
+                    id="due-date"
+                    value={invoiceData.dueDate}
+                    onChange={(e) =>
+                      setInvoiceData({ ...invoiceData, dueDate: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+            </section>
+
+            <section aria-label="Invoice Items">
+              <InvoiceItems
+                items={invoiceData.items}
+                onItemsChange={(items) => setInvoiceData({ ...invoiceData, items })}
               />
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Label htmlFor="tax-rate">Tax %</Label>
-                <Input
-                  id="tax-rate"
-                  type="number"
-                  className="w-24"
-                  value={invoiceData.taxRate}
+            </section>
+
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <Label htmlFor="memo">Memo</Label>
+                <Textarea
+                  id="memo"
+                  placeholder="Additional notes..."
+                  value={invoiceData.memo}
                   onChange={(e) =>
-                    setInvoiceData({
-                      ...invoiceData,
-                      taxRate: Number(e.target.value) || 0,
-                    })
+                    setInvoiceData({ ...invoiceData, memo: e.target.value })
                   }
                 />
               </div>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <Label htmlFor="tax-rate">Tax %</Label>
+                  <Input
+                    id="tax-rate"
+                    type="number"
+                    className="w-24"
+                    value={invoiceData.taxRate}
+                    onChange={(e) =>
+                      setInvoiceData({
+                        ...invoiceData,
+                        taxRate: Number(e.target.value) || 0,
+                      })
+                    }
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        </article>
-
-        <aside className="space-y-4">
-          <div ref={invoiceRef}>
-            {renderTemplate()}
-          </div>
-
-          <Button className="w-full bg-primary" size="lg">
-            Send invoice for free
-          </Button>
-          <Button className="w-full bg-secondary" size="lg" onClick={generatePDF}>
-            Download PDF
-          </Button>
-          
-      
-
-          {/* <div className="space-y-4 rounded-lg border bg-card p-6">
-            <h3 className="text-center text-lg font-medium">
-              With Contra, get paid 100% commission-free
-            </h3>
-            <div className="grid grid-cols-4 gap-2">
-              <Button variant="outline" size="icon" className="aspect-square">
-                <Bank className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon" className="aspect-square">
-                <CreditCard className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon" className="aspect-square">
-                <Paypal className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon" className="aspect-square">
-                <span className="font-medium">USDC</span>
-              </Button>
+          </article>
+          <aside className="space-y-4">
+            <div ref={invoiceRef}>
+              {renderTemplate()}
             </div>
-          </div> */}
-        </aside>
+
+            <Button className="w-full bg-primary" size="lg">
+              Send invoice for free
+            </Button>
+            <Button className="w-full bg-secondary" size="lg" onClick={generatePDF}>
+              Download PDF
+            </Button>
+          </aside>
+        </div>
       </div>
     </main>
   )
