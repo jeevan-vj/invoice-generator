@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { InvoiceData } from "@/types/invoice"
 import { calculateSubtotal, calculateTax, formatCurrency } from "@/utils/calculations"
 
-export function ModernTemplate({ data }: { data: InvoiceData }) {
+export function ModernTemplate({ data, theme }: { data: InvoiceData, theme: { primary: string, secondary: string } }) {
   const subtotal = calculateSubtotal(data.items)
   const tax = calculateTax(subtotal, data.taxRate)
   const total = subtotal + tax
@@ -22,9 +22,9 @@ export function ModernTemplate({ data }: { data: InvoiceData }) {
   return (
     <Card className="bg-gradient-to-br from-white to-gray-50">
       <CardContent className="p-8">
-        <div className="space-y-8">
+        <div className="space-y-8" style={{ '--invoice-primary': theme.primary, '--invoice-secondary': theme.secondary } as React.CSSProperties}>
           <div className="flex justify-between items-center">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold" style={{ color: theme.primary }}>
               INVOICE
             </h2>
             <div className="text-right">

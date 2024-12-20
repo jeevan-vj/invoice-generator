@@ -41,6 +41,10 @@ export default function InvoiceGenerator() {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateOption>("classic")
   const [isPDFReady, setIsPDFReady] = useState(false)
   const invoiceRef = useRef<HTMLDivElement>(null)
+  const [theme, setTheme] = useState({
+    primary: "#0066cc",
+    secondary: "#4d4d4d"
+  })
 
   useEffect(() => {
     setIsPDFReady(true)
@@ -66,11 +70,11 @@ export default function InvoiceGenerator() {
   const renderTemplate = () => {
     switch (selectedTemplate) {
       case "modern":
-        return <ModernTemplate data={invoiceData} />
+        return <ModernTemplate data={invoiceData} theme={theme} />
       case "minimal":
-        return <MinimalTemplate data={invoiceData} />
+        return <MinimalTemplate data={invoiceData} theme={theme} />
       default:
-        return <InvoicePreview data={invoiceData} />
+        return <InvoicePreview data={invoiceData} theme={theme} />
     }
   }
 
@@ -80,6 +84,8 @@ export default function InvoiceGenerator() {
         <TemplateSelector
           selected={selectedTemplate}
           onSelect={setSelectedTemplate}
+          theme={theme}
+          onThemeChange={setTheme}
         />
         <div className="grid gap-8 lg:grid-cols-2">
           <article className="space-y-8">
