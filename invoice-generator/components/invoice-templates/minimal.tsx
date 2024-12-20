@@ -1,9 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { InvoiceData } from "@/types/invoice"
+import { InvoiceData, TemplateProps } from "@/types/invoice"
 import { calculateSubtotal, calculateTax, formatCurrency } from "@/utils/calculations"
 import { Separator } from "@/components/ui/separator"
 
-export function MinimalTemplate({ data }: { data: InvoiceData }) {
+export const MinimalTemplate: React.FC<TemplateProps> = ({ data, theme }) => {
   const subtotal = calculateSubtotal(data.items)
   const tax = calculateTax(subtotal, data.taxRate)
   const total = subtotal + tax

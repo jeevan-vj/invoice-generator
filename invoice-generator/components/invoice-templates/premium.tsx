@@ -1,8 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { InvoiceData } from "@/types/invoice"
 import { calculateSubtotal, calculateTax, formatCurrency } from "@/utils/calculations"
+import { TemplateProps } from "@/types/invoice";
 
-export function PremiumTemplate({ data, theme }: { data: InvoiceData, theme: { primary: string, secondary: string } }) {
+export const PremiumTemplate: React.FC<TemplateProps> = ({ data, theme }) => {
   const subtotal = calculateSubtotal(data.items)
   const tax = calculateTax(subtotal, data.taxRate)
   const total = subtotal + tax

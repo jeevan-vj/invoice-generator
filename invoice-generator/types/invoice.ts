@@ -23,3 +23,13 @@ export interface InvoiceData {
   taxRate: number
 }
 
+export interface Theme {
+  primary: string;
+  secondary: string;
+}
+
+export interface TemplateProps {
+  data: InvoiceData;
+  theme: Theme;
+}
+

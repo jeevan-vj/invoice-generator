@@ -1,8 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { InvoiceData } from "../types/invoice"
-import { calculateSubtotal, calculateTax, formatCurrency } from "../utils/calculations"
+import { InvoiceData, TemplateProps } from "@/types/invoice"
+import { calculateSubtotal, calculateTax, formatCurrency } from "@/utils/calculations"
 
-export function InvoicePreview({ data }: { data: InvoiceData }) {
+export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
   const subtotal = calculateSubtotal(data.items)
   const tax = calculateTax(subtotal, data.taxRate)
   const total = subtotal + tax
@@ -23,50 +23,53 @@ export function InvoicePreview({ data }: { data: InvoiceData }) {
     <Card className="bg-white">
       <CardContent className="p-6">
         <div className="space-y-6">
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold">Invoice #{data.invoiceNumber}</h2>
-            <div className="text-sm text-muted-foreground">
-              <p>Issue Date: {data.issueDate}</p>
-              <p>Due Date: {data.dueDate}</p>
+          <div className="flex justify-between">
+            <div>
+              <h2 className="text-2xl font-bold" style={{ color: theme.primary }}>INVOICE</h2>
+              <p className="text-sm text-muted-foreground">#{data.invoiceNumber}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm">Issue Date: {data.issueDate}</p>
+              <p className="text-sm">Due Date: {data.dueDate}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">From</p>
+            <div>
+              <p className="text-sm font-medium mb-2" style={{ color: theme.primary }}>From</p>
               <p className="font-medium">{`${data.sender.firstName} ${data.sender.lastName}`}</p>
               {data.sender.companyName && (
                 <p className="text-sm">{data.sender.companyName}</p>
               )}
-              <p className="text-sm">{data.sender.email}</p>
+              <p className="text-sm text-muted-foreground">{data.sender.email}</p>
             </div>
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">To</p>
+            <div>
+              <p className="text-sm font-medium mb-2" style={{ color: theme.primary }}>To</p>
               <p className="font-medium">{`${data.client.firstName} ${data.client.lastName}`}</p>
               {data.client.companyName && (
                 <p className="text-sm">{data.client.companyName}</p>
               )}
-              <p className="text-sm">{data.client.email}</p>
+              <p className="text-sm text-muted-foreground">{data.client.email}</p>
             </div>
           </div>
 
-          <div className="rounded-lg border">
+          <div className="border rounded-lg">
             <table className="w-full">
               <thead>
-                <tr className="border-b">
-                  <th className="p-3 text-left">Description</th>
-                  <th className="p-3 text-right">Qty</th>
-                  <th className="p-3 text-right">Price</th>
-                  <th className="p-3 text-right">Total</th>
+                <tr className="border-b bg-muted/50">
+                  <th className="px-4 py-2 text-left text-sm font-medium">Description</th>
+                  <th className="px-4 py-2 text-right text-sm font-medium">Qty</th>
+                  <th className="px-4 py-2 text-right text-sm font-medium">Price</th>
+                  <th className="px-4 py-2 text-right text-sm font-medium">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {data.items.map((item) => (
                   <tr key={item.id} className="border-b last:border-0">
-                    <td className="p-3">{item.description}</td>
-                    <td className="p-3 text-right">{item.quantity}</td>
-                    <td className="p-3 text-right">{formatCurrency(item.price)}</td>
-                    <td className="p-3 text-right">
+                    <td className="px-4 py-2">{item.description}</td>
+                    <td className="px-4 py-2 text-right">{item.quantity}</td>
+                    <td className="px-4 py-2 text-right">{formatCurrency(item.price)}</td>
+                    <td className="px-4 py-2 text-right font-medium">
                       {formatCurrency(item.quantity * item.price)}
                     </td>
                   </tr>
@@ -75,25 +78,29 @@ export function InvoicePreview({ data }: { data: InvoiceData }) {
             </table>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span>{formatCurrency(subtotal)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Tax ({data.taxRate}%)</span>
-              <span>{formatCurrency(tax)}</span>
-            </div>
-            <div className="flex justify-between font-medium">
-              <span>Total</span>
-              <span>{formatCurrency(total)}</span>
+          <div className="flex justify-end">
+            <div className="w-60 space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm">Subtotal</span>
+                <span>{formatCurrency(subtotal)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm">Tax ({data.taxRate}%)</span>
+                <span>{formatCurrency(tax)}</span>
+              </div>
+              <div className="border-t pt-2">
+                <div className="flex justify-between font-medium">
+                  <span>Total</span>
+                  <span style={{ color: theme.primary }}>{formatCurrency(total)}</span>
+                </div>
+              </div>
             </div>
           </div>
 
           {data.memo && (
-            <div className="space-y-2 rounded-lg bg-muted p-4">
-              <p className="text-sm font-medium">Notes</p>
-              <p className="text-sm">{data.memo}</p>
+            <div className="border-t pt-4">
+              <p className="text-sm font-medium mb-2" style={{ color: theme.primary }}>Notes</p>
+              <p className="text-sm text-muted-foreground">{data.memo}</p>
             </div>
           )}
         </div>
