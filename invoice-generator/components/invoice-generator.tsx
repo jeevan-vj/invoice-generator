@@ -12,6 +12,10 @@ import { InvoicePreview } from "./invoice-preview"
 import { InvoiceData, CompanyDetails } from "../types/invoice"
 import { BanknoteIcon as Bank, CreditCard, ShoppingCartIcon as Paypal } from 'lucide-react'
 import jsPDF from 'jspdf'
+import { TemplateSelector, TemplateOption } from "./template-selector"
+import { ModernTemplate } from "./invoice-templates/modern"
+import { MinimalTemplate } from "./invoice-templates/minimal"
+// ...other template imports...
 
 //const PDFDownloadLink = dynamic(() => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink), { ssr: false })
 //const InvoicePDF = dynamic(() => import('./components/invoice-pdf'), { ssr: false })
@@ -34,6 +38,7 @@ const initialInvoiceData: InvoiceData = {
 
 export default function InvoiceGenerator() {
   const [invoiceData, setInvoiceData] = useState<InvoiceData>(initialInvoiceData)
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateOption>("classic")
   const [isPDFReady, setIsPDFReady] = useState(false)
   const invoiceRef = useRef<HTMLDivElement>(null)
 
@@ -58,10 +63,25 @@ export default function InvoiceGenerator() {
     })
   }
 
+  const renderTemplate = () => {
+    switch (selectedTemplate) {
+      case "modern":
+        return <ModernTemplate data={invoiceData} />
+      case "minimal":
+        return <MinimalTemplate data={invoiceData} />
+      default:
+        return <InvoicePreview data={invoiceData} />
+    }
+  }
+
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto grid gap-8 p-8 lg:grid-cols-2">
         <article className="space-y-8">
+          <TemplateSelector
+            selected={selectedTemplate}
+            onSelect={setSelectedTemplate}
+          />
           <header>
             <h1 className="text-3xl font-semibold">Create your invoice</h1>
             <meta name="description" content="Generate a professional invoice instantly with our free online invoice generator" />
@@ -157,7 +177,7 @@ export default function InvoiceGenerator() {
 
         <aside className="space-y-4">
           <div ref={invoiceRef}>
-            <InvoicePreview data={invoiceData} />
+            {renderTemplate()}
           </div>
 
           <Button className="w-full bg-primary" size="lg">
