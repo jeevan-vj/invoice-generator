@@ -15,6 +15,10 @@ import jsPDF from 'jspdf'
 import { TemplateSelector, TemplateOption } from "./template-selector"
 import { ModernTemplate } from "./invoice-templates/modern"
 import { MinimalTemplate } from "./invoice-templates/minimal"
+
+import { BrandedTemplate } from "./invoice-templates/branded"
+import { ExecutiveTemplate } from "./invoice-templates/executive"
+import { PremiumTemplate } from "./invoice-templates/premium"
 // ...other template imports...
 
 //const PDFDownloadLink = dynamic(() => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink), { ssr: false })
@@ -73,6 +77,12 @@ export default function InvoiceGenerator() {
         return <ModernTemplate data={invoiceData} theme={theme} />
       case "minimal":
         return <MinimalTemplate data={invoiceData} theme={theme} />
+      case "corporate":
+        return <PremiumTemplate data={invoiceData} theme={theme} />
+      case "branded":
+        return <BrandedTemplate data={invoiceData} theme={theme} />
+      case "executive":
+        return <ExecutiveTemplate data={invoiceData} theme={theme} />
       default:
         return <InvoicePreview data={invoiceData} theme={theme} />
     }

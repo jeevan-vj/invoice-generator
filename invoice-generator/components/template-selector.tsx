@@ -4,7 +4,7 @@ import { Check } from "lucide-react"
 import { ColorPicker } from "@/components/ui/color-picker"
 import { Separator } from "@/components/ui/separator"
 
-export type TemplateOption = "classic" | "modern" | "minimal" | "corporate"
+export type TemplateOption = "classic" | "modern" | "minimal" | "corporate" | "branded" | "executive" | "premium"
 
 interface TemplateTheme {
   primary: string
@@ -46,6 +46,27 @@ const templates = [
     description: "Business-focused template",
     thumbnail: "📊",
     color: "from-green-500/20 to-green-500/5"
+  },
+  {
+    id: "branded",
+    name: "Branded",
+    description: "Customizable brand-focused design",
+    thumbnail: "🎨",
+    color: "from-red-500/20 to-red-500/5"
+  },
+  {
+    id: "executive",
+    name: "Executive",
+    description: "Premium executive style",
+    thumbnail: "👔",
+    color: "from-yellow-500/20 to-yellow-500/5"
+  },
+  {
+    id: "premium",
+    name: "Premium",
+    description: "Luxury high-end template",
+    thumbnail: "💎",
+    color: "from-indigo-500/20 to-indigo-500/5"
   }
 ]
 
