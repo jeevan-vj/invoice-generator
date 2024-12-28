@@ -1,101 +1,101 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
-import { Check } from "lucide-react"
-import { ColorPicker } from "@/components/ui/color-picker"
-import { Separator } from "@/components/ui/separator"
+import { Card, CardContent } from '@/components/ui/card';
+import { Theme } from '@/types/invoice';
+import { cn } from '@/lib/utils';
+import { Check } from 'lucide-react';
 
-export type TemplateOption = "classic" | "modern" | "minimal" | "corporate" | "branded" | "executive" | "premium"
-
-interface TemplateTheme {
-  primary: string
-  secondary: string
-}
+export type TemplateOption =
+  | 'classic'
+  | 'modern'
+  | 'minimal'
+  | 'corporate'
+  | 'branded'
+  | 'executive';
 
 interface TemplateSelectorProps {
-  selected: TemplateOption
-  onSelect: (template: TemplateOption) => void
-  theme: TemplateTheme
-  onThemeChange: (theme: TemplateTheme) => void
+  selected: TemplateOption;
+  onSelect: (template: TemplateOption) => void;
+  theme: Theme;
+  onThemeChange: (theme: Theme) => void;
 }
 
 const templates = [
   {
-    id: "classic",
-    name: "Classic",
-    description: "Traditional professional design",
-    thumbnail: "🧾",
-    color: "from-blue-500/20 to-blue-500/5"
+    id: 'classic',
+    name: 'Classic',
+    description: 'Traditional professional design',
+    thumbnail: '🧾',
+    color: 'from-blue-500/20 to-blue-500/5',
   },
   {
-    id: "modern",
-    name: "Modern",
-    description: "Contemporary gradient style",
-    thumbnail: "📋",
-    color: "from-purple-500/20 to-purple-500/5"
+    id: 'modern',
+    name: 'Modern',
+    description: 'Contemporary gradient style',
+    thumbnail: '📋',
+    color: 'from-purple-500/20 to-purple-500/5',
   },
   {
-    id: "minimal",
-    name: "Minimal",
-    description: "Clean and simple layout",
-    thumbnail: "📝",
-    color: "from-gray-500/20 to-gray-500/5"
+    id: 'minimal',
+    name: 'Minimal',
+    description: 'Clean and simple layout',
+    thumbnail: '📝',
+    color: 'from-gray-500/20 to-gray-500/5',
   },
   {
-    id: "corporate",
-    name: "Corporate",
-    description: "Business-focused template",
-    thumbnail: "📊",
-    color: "from-green-500/20 to-green-500/5"
+    id: 'corporate',
+    name: 'Corporate',
+    description: 'Business-focused template',
+    thumbnail: '📊',
+    color: 'from-green-500/20 to-green-500/5',
   },
   {
-    id: "branded",
-    name: "Branded",
-    description: "Customizable brand-focused design",
-    thumbnail: "🎨",
-    color: "from-red-500/20 to-red-500/5"
+    id: 'branded',
+    name: 'Branded',
+    description: 'Customizable brand-focused design',
+    thumbnail: '🎨',
+    color: 'from-red-500/20 to-red-500/5',
   },
   {
-    id: "executive",
-    name: "Executive",
-    description: "Premium executive style",
-    thumbnail: "👔",
-    color: "from-yellow-500/20 to-yellow-500/5"
+    id: 'executive',
+    name: 'Executive',
+    description: 'Premium executive style',
+    thumbnail: '👔',
+    color: 'from-yellow-500/20 to-yellow-500/5',
   },
-  {
-    id: "premium",
-    name: "Premium",
-    description: "Luxury high-end template",
-    thumbnail: "💎",
-    color: "from-indigo-500/20 to-indigo-500/5"
-  }
-]
+] as const;
 
-export function TemplateSelector({ 
-  selected, 
-  onSelect, 
-  theme, 
-  onThemeChange 
+export function TemplateSelector({
+  selected,
+  onSelect,
+  theme,
 }: TemplateSelectorProps) {
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Choose Template</h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="relative">
+      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10" />
+      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10" />
+      <div
+        className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/10 hover:scrollbar-thumb-primary/20 scrollbar-track-transparent"
+        style={{
+          WebkitMaskImage:
+            'linear-gradient(to right, transparent, black 8px, black calc(100% - 8px), transparent)',
+        }}
+      >
+        <div className="flex gap-4 p-1 min-w-full w-max">
           {templates.map((template) => (
             <Card
               key={template.id}
               className={cn(
-                "relative cursor-pointer transition-all hover:scale-105",
-                "bg-gradient-to-br",
+                'relative cursor-pointer transition-all hover:scale-105 w-[200px] flex-shrink-0',
+                'bg-gradient-to-br',
                 template.color,
-                selected === template.id && "ring-2",
-                selected === template.id && { borderColor: theme.primary }
+                selected === template.id && 'ring-2 ring-primary'
               )}
               onClick={() => onSelect(template.id as TemplateOption)}
-              style={{
-                '--theme-primary': theme.primary,
-                '--theme-secondary': theme.secondary,
-              } as React.CSSProperties}
+              style={
+                {
+                  '--theme-primary': theme.primary,
+                  '--theme-secondary': theme.secondary,
+                } as React.CSSProperties
+              }
             >
               {selected === template.id && (
                 <div className="absolute top-2 right-2 h-5 w-5 rounded-full bg-primary text-white flex items-center justify-center">
@@ -115,29 +115,6 @@ export function TemplateSelector({
           ))}
         </div>
       </div>
-
-      <div className="p-4 rounded-lg border bg-card">
-        <div className="space-y-4">
-          <h4 className="text-sm font-medium">Customize Colors</h4>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <ColorPicker
-                color={theme.primary}
-                onChange={(color) => onThemeChange({ ...theme, primary: color })}
-              />
-              <span className="text-sm text-muted-foreground">Primary</span>
-            </div>
-            <Separator orientation="vertical" className="h-6" />
-            <div className="flex items-center gap-2">
-              <ColorPicker
-                color={theme.secondary}
-                onChange={(color) => onThemeChange({ ...theme, secondary: color })}
-              />
-              <span className="text-sm text-muted-foreground">Secondary</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  )
+  );
 }
