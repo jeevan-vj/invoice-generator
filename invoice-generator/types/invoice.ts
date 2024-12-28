@@ -5,11 +5,12 @@ export interface InvoiceItem {
   price: number
 }
 
-export interface CompanyDetails {
-  firstName: string
-  lastName: string
-  email: string
-  companyName?: string
+export interface CompanyDetails extends Sender {
+  firstName: string;
+  lastName: string;
+  email: string;
+  companyName?: string;
+  logo?: string;
 }
 
 export interface InvoiceData {
@@ -31,5 +32,13 @@ export interface Theme {
 export interface TemplateProps {
   data: InvoiceData;
   theme: Theme;
+}
+
+interface Sender {
+  firstName: string
+  lastName: string
+  companyName?: string
+  email: string
+  logo?: string // Base64 or URL string
 }
 

@@ -1,18 +1,25 @@
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { CompanyDetails } from "../types/invoice"
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { CompanyDetails } from '../types/invoice';
+import { LogoUpload } from '@/components/logo-upload';
 
 interface CompanyDetailsFormProps {
-  title: string
-  data: CompanyDetails
-  onChange: (data: CompanyDetails) => void
+  title: string;
+  data: CompanyDetails;
+  onChange: (data: CompanyDetails) => void;
 }
 
-export function CompanyDetailsForm({ title, data, onChange }: CompanyDetailsFormProps) {
-  const handleChange = (field: keyof CompanyDetails) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({ ...data, [field]: e.target.value })
-  }
+export function CompanyDetailsForm({
+  title,
+  data,
+  onChange,
+}: CompanyDetailsFormProps) {
+  const handleChange =
+    (field: keyof CompanyDetails) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange({ ...data, [field]: e.target.value });
+    };
 
   return (
     <div className="space-y-4">
@@ -23,7 +30,7 @@ export function CompanyDetailsForm({ title, data, onChange }: CompanyDetailsForm
           <Input
             id={`${title}-firstName`}
             value={data.firstName}
-            onChange={handleChange("firstName")}
+            onChange={handleChange('firstName')}
           />
         </div>
         <div className="space-y-2">
@@ -31,7 +38,7 @@ export function CompanyDetailsForm({ title, data, onChange }: CompanyDetailsForm
           <Input
             id={`${title}-lastName`}
             value={data.lastName}
-            onChange={handleChange("lastName")}
+            onChange={handleChange('lastName')}
           />
         </div>
       </div>
@@ -41,27 +48,41 @@ export function CompanyDetailsForm({ title, data, onChange }: CompanyDetailsForm
           id={`${title}-email`}
           type="email"
           value={data.email}
-          onChange={handleChange("email")}
+          onChange={handleChange('email')}
         />
       </div>
       <Button
         variant="outline"
         className="w-full"
-        onClick={() => onChange({ ...data, companyName: data.companyName || "" })}
+        onClick={() =>
+          onChange({ ...data, companyName: data.companyName || '' })
+        }
       >
         + Company
       </Button>
       {data.companyName !== undefined && (
-        <div className="space-y-2">
-          <Label htmlFor={`${title}-company`}>Company name</Label>
-          <Input
-            id={`${title}-company`}
-            value={data.companyName}
-            onChange={handleChange("companyName")}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor={`${title}-company`}>Company name</Label>
+            <Input
+              id={`${title}-company`}
+              value={data.companyName}
+              onChange={handleChange('companyName')}
+            />
+          </div>
+          <div className="flex justify-center md:justify-start">
+            <LogoUpload
+              value={data.logo}
+              onChange={(logo) =>
+                onChange({
+                  ...data,
+                  logo,
+                })
+              }
+            />
+          </div>
         </div>
       )}
     </div>
-  )
+  );
 }
-
