@@ -1,92 +1,100 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useRef } from "react"
-import dynamic from 'next/dynamic'
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { CompanyDetailsForm } from "./company-details-form"
-import { InvoiceItems } from "./invoice-items"
-import { InvoicePreview } from "./invoice-preview"
-import { InvoiceData, CompanyDetails } from "../types/invoice"
-import { BanknoteIcon as Bank, CreditCard, ShoppingCartIcon as Paypal } from 'lucide-react'
-import jsPDF from 'jspdf'
-import { TemplateSelector, TemplateOption } from "./template-selector"
-import { ModernTemplate } from "./invoice-templates/modern"
-import { MinimalTemplate } from "./invoice-templates/minimal"
+import { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { CompanyDetailsForm } from './company-details-form';
+import { InvoiceItems } from './invoice-items';
+import { InvoicePreview } from './invoice-preview';
+import { InvoiceData, CompanyDetails } from '../types/invoice';
+import {
+  BanknoteIcon as Bank,
+  CreditCard,
+  ShoppingCartIcon as Paypal,
+} from 'lucide-react';
+import jsPDF from 'jspdf';
+import { TemplateSelector, TemplateOption } from './template-selector';
+import { ModernTemplate } from './invoice-templates/modern';
+import { MinimalTemplate } from './invoice-templates/minimal';
 
-import { BrandedTemplate } from "./invoice-templates/branded"
-import { ExecutiveTemplate } from "./invoice-templates/executive"
-import { PremiumTemplate } from "./invoice-templates/premium"
+import { BrandedTemplate } from './invoice-templates/branded';
+import { ExecutiveTemplate } from './invoice-templates/executive';
+import { PremiumTemplate } from './invoice-templates/premium';
 // ...other template imports...
 
 //const PDFDownloadLink = dynamic(() => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink), { ssr: false })
 //const InvoicePDF = dynamic(() => import('./components/invoice-pdf'), { ssr: false })
 
 const emptyCompanyDetails: CompanyDetails = {
-  firstName: "",
-  lastName: "",
-  email: "",
-}
+  firstName: '',
+  lastName: '',
+  email: '',
+};
 
 const initialInvoiceData: InvoiceData = {
   sender: emptyCompanyDetails,
   client: emptyCompanyDetails,
-  invoiceNumber: "23-001",
-  issueDate: new Date().toISOString().split("T")[0],
-  dueDate: "Upon Receipt",
+  invoiceNumber: '23-001',
+  issueDate: new Date().toISOString().split('T')[0],
+  dueDate: 'Upon Receipt',
   items: [],
   taxRate: 0,
-}
+};
 
 export default function InvoiceGenerator() {
-  const [invoiceData, setInvoiceData] = useState<InvoiceData>(initialInvoiceData)
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateOption>("classic")
-  const [isPDFReady, setIsPDFReady] = useState(false)
-  const invoiceRef = useRef<HTMLDivElement>(null)
+  const [invoiceData, setInvoiceData] =
+    useState<InvoiceData>(initialInvoiceData);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<TemplateOption>('classic');
+  const [isPDFReady, setIsPDFReady] = useState(false);
+  const invoiceRef = useRef<HTMLDivElement>(null);
   const [theme, setTheme] = useState({
-    primary: "#0066cc",
-    secondary: "#4d4d4d"
-  })
+    primary: '#0066cc',
+    secondary: '#4d4d4d',
+  });
 
   useEffect(() => {
-    setIsPDFReady(true)
-  }, [])
+    setIsPDFReady(true);
+  }, []);
 
   const generatePDF = () => {
-    if (!invoiceRef.current || !invoiceData) return
+    if (!invoiceRef.current || !invoiceData) return;
 
-    const pdf = new jsPDF('p', 'mm', 'a4')
-    const pdfElement = invoiceRef.current
-    
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfElement = invoiceRef.current;
+
     pdf.html(pdfElement, {
       callback: function (pdf) {
-        pdf.save(`invoice_${invoiceData.invoiceNumber.replace(/\s+/g, '_')}.pdf`)
+        pdf.save(
+          `invoice_${invoiceData.invoiceNumber.replace(/\s+/g, '_')}.pdf`
+        );
       },
       x: 10,
       y: 10,
       width: 190,
-      windowWidth: 650
-    })
-  }
+      windowWidth: 650,
+    });
+  };
 
   const renderTemplate = () => {
     switch (selectedTemplate) {
-      case "modern":
-        return <ModernTemplate data={invoiceData} theme={theme} />
-      case "minimal":
-        return <MinimalTemplate data={invoiceData} theme={theme} />
-      case "corporate":
-        return <PremiumTemplate data={invoiceData} theme={theme} />
-      case "branded":
-        return <BrandedTemplate data={invoiceData} theme={theme} />
-      case "executive":
-        return <ExecutiveTemplate data={invoiceData} theme={theme} />
+      case 'modern':
+        return <ModernTemplate data={invoiceData} theme={theme} />;
+      case 'minimal':
+        return <MinimalTemplate data={invoiceData} theme={theme} />;
+      case 'corporate':
+        return <PremiumTemplate data={invoiceData} theme={theme} />;
+      case 'branded':
+        return <BrandedTemplate data={invoiceData} theme={theme} />;
+      case 'executive':
+        return <ExecutiveTemplate data={invoiceData} theme={theme} />;
       default:
-        return <InvoicePreview data={invoiceData} theme={theme} />
+        return <InvoicePreview data={invoiceData} theme={theme} />;
     }
-  }
+  };
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -101,9 +109,12 @@ export default function InvoiceGenerator() {
           <article className="space-y-8">
             <header>
               <h1 className="text-3xl font-semibold">Create your invoice</h1>
-              <meta name="description" content="Generate a professional invoice instantly with our free online invoice generator" />
+              <meta
+                name="description"
+                content="Generate a professional invoice instantly with our free online invoice generator"
+              />
             </header>
-            
+
             <CompanyDetailsForm
               title="Your info"
               data={invoiceData.sender}
@@ -125,7 +136,10 @@ export default function InvoiceGenerator() {
                     id="invoice-number"
                     value={invoiceData.invoiceNumber}
                     onChange={(e) =>
-                      setInvoiceData({ ...invoiceData, invoiceNumber: e.target.value })
+                      setInvoiceData({
+                        ...invoiceData,
+                        invoiceNumber: e.target.value,
+                      })
                     }
                   />
                 </div>
@@ -136,7 +150,10 @@ export default function InvoiceGenerator() {
                     type="date"
                     value={invoiceData.issueDate}
                     onChange={(e) =>
-                      setInvoiceData({ ...invoiceData, issueDate: e.target.value })
+                      setInvoiceData({
+                        ...invoiceData,
+                        issueDate: e.target.value,
+                      })
                     }
                   />
                 </div>
@@ -146,7 +163,10 @@ export default function InvoiceGenerator() {
                     id="due-date"
                     value={invoiceData.dueDate}
                     onChange={(e) =>
-                      setInvoiceData({ ...invoiceData, dueDate: e.target.value })
+                      setInvoiceData({
+                        ...invoiceData,
+                        dueDate: e.target.value,
+                      })
                     }
                   />
                 </div>
@@ -156,7 +176,9 @@ export default function InvoiceGenerator() {
             <section aria-label="Invoice Items">
               <InvoiceItems
                 items={invoiceData.items}
-                onItemsChange={(items) => setInvoiceData({ ...invoiceData, items })}
+                onItemsChange={(items) =>
+                  setInvoiceData({ ...invoiceData, items })
+                }
               />
             </section>
 
@@ -192,20 +214,21 @@ export default function InvoiceGenerator() {
             </div>
           </article>
           <aside className="space-y-4">
-            <div ref={invoiceRef}>
-              {renderTemplate()}
-            </div>
+            <div ref={invoiceRef}>{renderTemplate()}</div>
 
-            <Button className="w-full bg-primary" size="lg">
+            {/* <Button className="w-full bg-primary" size="lg">
               Send invoice for free
-            </Button>
-            <Button className="w-full bg-secondary" size="lg" onClick={generatePDF}>
+            </Button> */}
+            <Button
+              className="w-full bg-primary"
+              size="lg"
+              onClick={generatePDF}
+            >
               Download PDF
             </Button>
           </aside>
         </div>
       </div>
     </main>
-  )
+  );
 }
-
