@@ -23,6 +23,7 @@ import { MinimalTemplate } from './invoice-templates/minimal';
 import { BrandedTemplate } from './invoice-templates/branded';
 import { ExecutiveTemplate } from './invoice-templates/executive';
 import { PremiumTemplate } from './invoice-templates/premium';
+import { useInvoices } from '@/lib/contexts/invoice-context';
 // ...other template imports...
 
 //const PDFDownloadLink = dynamic(() => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink), { ssr: false })
@@ -32,6 +33,14 @@ const emptyCompanyDetails: CompanyDetails = {
   firstName: '',
   lastName: '',
   email: '',
+  phone: '',
+  address: {
+    street: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    country: '',
+  },
 };
 
 const initialInvoiceData: InvoiceData = {
@@ -45,8 +54,12 @@ const initialInvoiceData: InvoiceData = {
 };
 
 export default function InvoiceGenerator() {
-  const [invoiceData, setInvoiceData] =
-    useState<InvoiceData>(initialInvoiceData);
+  const { currentInvoice, saveInvoice, setCurrentInvoice, loading, error } =
+    useInvoices();
+
+  const [invoiceData, setInvoiceData] = useState<InvoiceData>(
+    currentInvoice || initialInvoiceData
+  );
   const [selectedTemplate, setSelectedTemplate] =
     useState<TemplateOption>('classic');
   const [isPDFReady, setIsPDFReady] = useState(false);
@@ -94,6 +107,10 @@ export default function InvoiceGenerator() {
       default:
         return <InvoicePreview data={invoiceData} theme={theme} />;
     }
+  };
+
+  const handleSave = async () => {
+    await saveInvoice(invoiceData);
   };
 
   return (
@@ -216,16 +233,25 @@ export default function InvoiceGenerator() {
           <aside className="space-y-4">
             <div ref={invoiceRef}>{renderTemplate()}</div>
 
-            {/* <Button className="w-full bg-primary" size="lg">
-              Send invoice for free
-            </Button> */}
-            <Button
-              className="w-full bg-primary"
-              size="lg"
-              onClick={generatePDF}
-            >
-              Download PDF
-            </Button>
+            <div className="flex gap-4">
+              <Button
+                className="flex-1 bg-primary"
+                size="lg"
+                onClick={handleSave}
+                disabled={loading}
+              >
+                {loading ? 'Saving...' : 'Save Invoice'}
+              </Button>
+              <Button
+                className="flex-1"
+                variant="outline"
+                size="lg"
+                onClick={generatePDF}
+              >
+                Download PDF
+              </Button>
+            </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
           </aside>
         </div>
       </div>

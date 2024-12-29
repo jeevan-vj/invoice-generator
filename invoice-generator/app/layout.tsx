@@ -1,41 +1,48 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "./globals.css";
+import type { Metadata } from 'next';
+import localFont from 'next/font/local';
+import './globals.css';
+import { InvoiceProvider } from '@/lib/contexts/invoice-context';
 
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+  src: './fonts/GeistVF.woff',
+  variable: '--font-geist-sans',
+  weight: '100 900',
 });
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+  src: './fonts/GeistMonoVF.woff',
+  variable: '--font-geist-mono',
+  weight: '100 900',
 });
 
 export const metadata: Metadata = {
-  title: "Free Invoice Generator | Create Professional Invoices Online",
-  description: "Create and download professional invoices for free. No sign-up required. Generate PDF invoices instantly with our easy-to-use online invoice generator.",
-  keywords: "invoice generator, free invoice maker, create invoice, PDF invoice, billing software, online invoice",
+  title: 'Free Invoice Generator | Create Professional Invoices Online',
+  description:
+    'Create and download professional invoices for free. No sign-up required. Generate PDF invoices instantly with our easy-to-use online invoice generator.',
+  keywords:
+    'invoice generator, free invoice maker, create invoice, PDF invoice, billing software, online invoice',
   openGraph: {
-    title: "Free Invoice Generator | Create Professional Invoices Online",
-    description: "Create and download professional invoices for free. Generate PDF invoices instantly with our easy-to-use online tool.",
-    type: "website",
-    locale: "en_US",
-    url: "https://yourdomain.com",
-    siteName: "Free Invoice Generator",
-    images: [{
-      url: "https://yourdomain.com/og-image.png",
-      width: 1200,
-      height: 630,
-      alt: "Free Invoice Generator Preview",
-    }],
+    title: 'Free Invoice Generator | Create Professional Invoices Online',
+    description:
+      'Create and download professional invoices for free. Generate PDF invoices instantly with our easy-to-use online tool.',
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://yourdomain.com',
+    siteName: 'Free Invoice Generator',
+    images: [
+      {
+        url: 'https://yourdomain.com/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Free Invoice Generator Preview',
+      },
+    ],
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Free Invoice Generator | Create Professional Invoices Online",
-    description: "Create and download professional invoices for free. Generate PDF invoices instantly.",
-    images: ["https://yourdomain.com/twitter-image.png"],
+    card: 'summary_large_image',
+    title: 'Free Invoice Generator | Create Professional Invoices Online',
+    description:
+      'Create and download professional invoices for free. Generate PDF invoices instantly.',
+    images: ['https://yourdomain.com/twitter-image.png'],
   },
   robots: {
     index: true,
@@ -49,7 +56,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: "your-google-verification-code",
+    google: 'your-google-verification-code',
   },
 };
 
@@ -66,23 +73,26 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              "name": "Free Invoice Generator",
-              "applicationCategory": "BusinessApplication",
-              "operatingSystem": "All",
-              "offers": {
-                "@type": "Offer",
-                "price": "0",
-                "priceCurrency": "USD"
+              '@context': 'https://schema.org',
+              '@type': 'WebApplication',
+              name: 'Free Invoice Generator',
+              applicationCategory: 'BusinessApplication',
+              operatingSystem: 'All',
+              offers: {
+                '@type': 'Offer',
+                price: '0',
+                priceCurrency: 'USD',
               },
-              "description": "Create and download professional invoices for free. No sign-up required."
-            })
+              description:
+                'Create and download professional invoices for free. No sign-up required.',
+            }),
           }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {children}
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <InvoiceProvider>{children}</InvoiceProvider>
       </body>
     </html>
   );

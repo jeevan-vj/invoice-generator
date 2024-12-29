@@ -74,9 +74,17 @@ export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
               {data.sender.companyName && (
                 <p className="text-sm">{data.sender.companyName}</p>
               )}
-              <p className="text-sm text-muted-foreground">
-                {data.sender.email}
-              </p>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <p>{data.sender.email}</p>
+                {data.sender.phone && <p>{data.sender.phone}</p>}
+                {data.sender.address && (
+                  <div className="mt-1">
+                    <p>{data.sender.address.street}</p>
+                    <p>{`${data.sender.address.city}, ${data.sender.address.state} ${data.sender.address.zipCode}`}</p>
+                    <p>{data.sender.address.country}</p>
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <p
@@ -89,9 +97,17 @@ export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
               {data.client.companyName && (
                 <p className="text-sm">{data.client.companyName}</p>
               )}
-              <p className="text-sm text-muted-foreground">
-                {data.client.email}
-              </p>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <p>{data.client.email}</p>
+                {data.client.phone && <p>{data.client.phone}</p>}
+                {data.client.address && (
+                  <div className="mt-1">
+                    <p>{data.client.address.street}</p>
+                    <p>{`${data.client.address.city}, ${data.client.address.state} ${data.client.address.zipCode}`}</p>
+                    <p>{data.client.address.country}</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

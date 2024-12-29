@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { CompanyDetails } from '../types/invoice';
+import { CompanyDetails, Address } from '../types/invoice';
 import { LogoUpload } from '@/components/logo-upload';
 
 interface CompanyDetailsFormProps {
@@ -19,6 +19,17 @@ export function CompanyDetailsForm({
     (field: keyof CompanyDetails) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange({ ...data, [field]: e.target.value });
+    };
+
+  const handleAddressChange =
+    (field: keyof Address) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange({
+        ...data,
+        address: {
+          ...data.address,
+          [field]: e.target.value,
+        },
+      });
     };
 
   return (
@@ -42,14 +53,60 @@ export function CompanyDetailsForm({
           />
         </div>
       </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor={`${title}-email`}>Email</Label>
+          <Input
+            id={`${title}-email`}
+            type="email"
+            value={data.email}
+            onChange={handleChange('email')}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor={`${title}-phone`}>Phone</Label>
+          <Input
+            id={`${title}-phone`}
+            type="tel"
+            placeholder="+1 (555) 000-0000"
+            value={data.phone || ''}
+            onChange={handleChange('phone')}
+          />
+        </div>
+      </div>
       <div className="space-y-2">
-        <Label htmlFor={`${title}-email`}>Email</Label>
-        <Input
-          id={`${title}-email`}
-          type="email"
-          value={data.email}
-          onChange={handleChange('email')}
-        />
+        <Label>Address</Label>
+        <div className="space-y-4">
+          <Input
+            placeholder="Street Address"
+            value={data.address?.street || ''}
+            onChange={handleAddressChange('street')}
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              placeholder="City"
+              value={data.address?.city || ''}
+              onChange={handleAddressChange('city')}
+            />
+            <Input
+              placeholder="State/Province"
+              value={data.address?.state || ''}
+              onChange={handleAddressChange('state')}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              placeholder="ZIP/Postal Code"
+              value={data.address?.zipCode || ''}
+              onChange={handleAddressChange('zipCode')}
+            />
+            <Input
+              placeholder="Country"
+              value={data.address?.country || ''}
+              onChange={handleAddressChange('country')}
+            />
+          </div>
+        </div>
       </div>
       <Button
         variant="outline"

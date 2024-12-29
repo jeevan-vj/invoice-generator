@@ -5,15 +5,36 @@ export interface InvoiceItem {
   price: number
 }
 
+interface Address {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
+interface Sender {
+  firstName: string;
+  lastName: string;
+  companyName?: string;
+  email: string;
+  phone?: string;
+  address?: Address;
+  logo?: string;
+}
+
 export interface CompanyDetails extends Sender {
   firstName: string;
   lastName: string;
   email: string;
+  phone?: string;
+  address?: Address;
   companyName?: string;
   logo?: string;
 }
 
 export interface InvoiceData {
+  id?: string;
   sender: CompanyDetails
   client: CompanyDetails
   invoiceNumber: string
@@ -32,13 +53,5 @@ export interface Theme {
 export interface TemplateProps {
   data: InvoiceData;
   theme: Theme;
-}
-
-interface Sender {
-  firstName: string
-  lastName: string
-  companyName?: string
-  email: string
-  logo?: string // Base64 or URL string
 }
 
