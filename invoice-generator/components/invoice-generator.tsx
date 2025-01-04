@@ -24,6 +24,8 @@ import { BrandedTemplate } from './invoice-templates/branded';
 import { ExecutiveTemplate } from './invoice-templates/executive';
 import { PremiumTemplate } from './invoice-templates/premium';
 import { useInvoices } from '@/lib/contexts/invoice-context';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { getInvoiceService } from '@/lib/services/invoice-service';
 // ...other template imports...
 
 //const PDFDownloadLink = dynamic(() => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink), { ssr: false })
@@ -54,12 +56,14 @@ const initialInvoiceData: InvoiceData = {
 };
 
 export default function InvoiceGenerator() {
+  const router = useRouter();
   const { currentInvoice, saveInvoice, setCurrentInvoice, loading, error } =
     useInvoices();
+  const searchParams = useSearchParams();
+  const invoiceId = searchParams.get('id');
 
-  const [invoiceData, setInvoiceData] = useState<InvoiceData>(
-    currentInvoice || initialInvoiceData
-  );
+  const [invoiceData, setInvoiceData] =
+    useState<InvoiceData>(initialInvoiceData);
   const [selectedTemplate, setSelectedTemplate] =
     useState<TemplateOption>('classic');
   const [isPDFReady, setIsPDFReady] = useState(false);
@@ -68,6 +72,34 @@ export default function InvoiceGenerator() {
     primary: '#0066cc',
     secondary: '#4d4d4d',
   });
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const loadInvoice = async () => {
+      if (!invoiceId) return;
+
+      setIsLoading(true);
+      try {
+        const service = getInvoiceService();
+        const response = await service.getInvoice(invoiceId);
+
+        if (response.error) {
+          throw new Error(response.error);
+        }
+
+        if (response.data) {
+          setInvoiceData(response.data);
+          setCurrentInvoice(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to load invoice:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadInvoice();
+  }, [invoiceId, setCurrentInvoice]);
 
   useEffect(() => {
     setIsPDFReady(true);
@@ -110,8 +142,24 @@ export default function InvoiceGenerator() {
   };
 
   const handleSave = async () => {
-    await saveInvoice(invoiceData);
+    try {
+      await saveInvoice(invoiceData);
+      router.push('/dashboard');
+    } catch (err) {
+      console.error('Failed to save invoice:', err);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading invoice...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -240,16 +288,31 @@ export default function InvoiceGenerator() {
                 onClick={handleSave}
                 disabled={loading}
               >
-                {loading ? 'Saving...' : 'Save Invoice'}
+                {loading
+                  ? 'Saving...'
+                  : invoiceId
+                  ? 'Update Invoice'
+                  : 'Save Invoice'}
               </Button>
-              <Button
-                className="flex-1"
-                variant="outline"
-                size="lg"
-                onClick={generatePDF}
-              >
-                Download PDF
-              </Button>
+              {invoiceId ? (
+                <Button
+                  className="flex-1"
+                  variant="outline"
+                  size="lg"
+                  onClick={() => router.push('/dashboard')}
+                >
+                  Cancel
+                </Button>
+              ) : (
+                <Button
+                  className="flex-1"
+                  variant="outline"
+                  size="lg"
+                  onClick={generatePDF}
+                >
+                  Download PDF
+                </Button>
+              )}
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
           </aside>

@@ -24,12 +24,12 @@ export function InvoiceProvider({ children }: { children: React.ReactNode }) {
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const service = getInvoiceService();
 
   const loadInvoices = async () => {
-    setLoading(true);
-    setError(null);
+    setIsLoading(true);
     try {
       const response = await service.listInvoices();
       if (response.error) {
@@ -39,7 +39,7 @@ export function InvoiceProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load invoices');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
