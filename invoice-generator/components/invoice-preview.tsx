@@ -30,7 +30,7 @@ export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
 
   return (
     <Card className="bg-white">
-      <CardContent className="p-6">
+      <CardContent className="p-6" data-invoice-template>
         <div className="space-y-6">
           <div className="flex justify-between items-start">
             <div>

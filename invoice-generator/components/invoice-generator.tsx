@@ -106,23 +106,32 @@ export default function InvoiceGenerator() {
     setIsPDFReady(true);
   }, []);
 
-  const generatePDF = () => {
-    if (!invoiceRef.current || !invoiceData) return;
+  const generatePDF = async () => {
+    try {
+      if (!invoiceRef.current || !invoiceData) return;
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfElement = invoiceRef.current;
 
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfElement = invoiceRef.current;
-
-    pdf.html(pdfElement, {
-      callback: function (pdf) {
-        pdf.save(
-          `invoice_${invoiceData.invoiceNumber.replace(/\s+/g, '_')}.pdf`
-        );
-      },
-      x: 10,
-      y: 10,
-      width: 190,
-      windowWidth: 650,
-    });
+      return new Promise((resolve) => {
+        pdf.html(pdfElement, {
+          callback: function (pdf) {
+            const pdfBlob = pdf.output('blob');
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+            setInvoiceData((prev) => ({ ...prev, pdfUrl }));
+            pdf.save(
+              `invoice_${invoiceData.invoiceNumber.replace(/\s+/g, '_')}.pdf`
+            );
+            resolve();
+          },
+          x: 10,
+          y: 10,
+          width: 190,
+          windowWidth: 650,
+        });
+      });
+    } catch (error) {
+      console.error('Failed to generate PDF:', error);
+    }
   };
 
   const renderTemplate = () => {
@@ -144,6 +153,9 @@ export default function InvoiceGenerator() {
 
   const handleSave = async () => {
     try {
+      if (!invoiceData.pdfUrl) {
+        await generatePDF();
+      }
       await saveInvoice(invoiceData);
       router.push('/dashboard');
     } catch (err) {
@@ -301,7 +313,15 @@ export default function InvoiceGenerator() {
                     ? 'Update Invoice'
                     : 'Save Invoice'}
                 </Button>
-                {invoiceId ? (
+                <Button
+                  className="flex-1"
+                  variant="outline"
+                  size="lg"
+                  onClick={generatePDF}
+                >
+                  Generate PDF
+                </Button>
+                {invoiceId && (
                   <Button
                     className="flex-1"
                     variant="outline"
@@ -309,15 +329,6 @@ export default function InvoiceGenerator() {
                     onClick={() => router.push('/dashboard')}
                   >
                     Cancel
-                  </Button>
-                ) : (
-                  <Button
-                    className="flex-1"
-                    variant="outline"
-                    size="lg"
-                    onClick={generatePDF}
-                  >
-                    Download PDF
                   </Button>
                 )}
               </div>

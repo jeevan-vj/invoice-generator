@@ -5,12 +5,12 @@ export interface InvoiceItem {
   price: number
 }
 
-interface Address {
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
+export interface Address {
+  street?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
 }
 
 interface Sender {
@@ -43,6 +43,7 @@ export interface InvoiceData {
   items: InvoiceItem[]
   memo?: string
   taxRate: number
+  pdfUrl?: string
 }
 
 export interface Theme {

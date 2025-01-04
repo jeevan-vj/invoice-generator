@@ -1,5 +1,7 @@
 import { InvoiceService } from '@/types/api';
+import { InvoiceData } from '@/types/invoice';
 import { LocalStorageService } from './local-storage-service';
+import { SupabaseService } from './supabase-service';
 
 let service: InvoiceService | null = null;
 
@@ -16,7 +18,9 @@ export function getInvoiceService(): InvoiceService {
   }
 
   if (!service) {
-    service = new LocalStorageService();
+    // Use Supabase service instead of LocalStorage
+      // service = new SupabaseService();
+      service = new LocalStorageService();
   }
   return service;
 } 

@@ -20,6 +20,7 @@ import {
 import { MoreHorizontal, Pencil, Download, Trash2 } from 'lucide-react';
 import { useInvoices } from '@/lib/contexts/invoice-context';
 import { useRouter } from 'next/navigation';
+import { getPDFService } from '@/lib/services/pdf-service';
 
 interface InvoiceListProps {
   invoices: InvoiceData[];
@@ -40,6 +41,22 @@ export function InvoiceList({ invoices }: InvoiceListProps) {
     );
     const tax = (subtotal * invoice.taxRate) / 100;
     return subtotal + tax;
+  };
+
+  const handleDownload = (invoice: InvoiceData) => {
+    if (invoice.pdfUrl) {
+      const link = document.createElement('a');
+      link.href = invoice.pdfUrl;
+      link.download = `invoice_${invoice.invoiceNumber.replace(
+        /\s+/g,
+        '_'
+      )}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      console.error('No PDF available for this invoice');
+    }
   };
 
   return (
@@ -81,7 +98,10 @@ export function InvoiceList({ invoices }: InvoiceListProps) {
                       <Pencil className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => generatePDF(invoice)}>
+                    <DropdownMenuItem
+                      onClick={() => handleDownload(invoice)}
+                      disabled={!invoice.pdfUrl}
+                    >
                       <Download className="mr-2 h-4 w-4" />
                       Download
                     </DropdownMenuItem>
