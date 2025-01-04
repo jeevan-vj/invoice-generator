@@ -26,6 +26,7 @@ import { PremiumTemplate } from './invoice-templates/premium';
 import { useInvoices } from '@/lib/contexts/invoice-context';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getInvoiceService } from '@/lib/services/invoice-service';
+import { Header } from '@/components/header';
 // ...other template imports...
 
 //const PDFDownloadLink = dynamic(() => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink), { ssr: false })
@@ -162,162 +163,169 @@ export default function InvoiceGenerator() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto p-8 space-y-8">
-        <TemplateSelector
-          selected={selectedTemplate}
-          onSelect={setSelectedTemplate}
-          theme={theme}
-          onThemeChange={setTheme}
-        />
-        <div className="grid gap-8 lg:grid-cols-2">
-          <article className="space-y-8">
-            <header>
-              <h1 className="text-3xl font-semibold">Create your invoice</h1>
-              <meta
-                name="description"
-                content="Generate a professional invoice instantly with our free online invoice generator"
-              />
-            </header>
+    <>
+      <Header />
+      <main className="min-h-screen bg-gray-50">
+        <div className="container mx-auto p-8 space-y-8">
+          <TemplateSelector
+            selected={selectedTemplate}
+            onSelect={setSelectedTemplate}
+            theme={theme}
+            onThemeChange={setTheme}
+          />
+          <div className="grid gap-8 lg:grid-cols-2">
+            <article className="space-y-8">
+              <header>
+                <h1 className="text-3xl font-semibold">Create your invoice</h1>
+                <meta
+                  name="description"
+                  content="Generate a professional invoice instantly with our free online invoice generator"
+                />
+              </header>
 
-            <CompanyDetailsForm
-              title="Your info"
-              data={invoiceData.sender}
-              onChange={(sender) => setInvoiceData({ ...invoiceData, sender })}
-            />
-
-            <CompanyDetailsForm
-              title="Client info"
-              data={invoiceData.client}
-              onChange={(client) => setInvoiceData({ ...invoiceData, client })}
-            />
-
-            <section className="space-y-4" aria-label="Invoice Information">
-              <h2 className="text-lg font-medium">Invoice info</h2>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="invoice-number">Invoice #</Label>
-                  <Input
-                    id="invoice-number"
-                    value={invoiceData.invoiceNumber}
-                    onChange={(e) =>
-                      setInvoiceData({
-                        ...invoiceData,
-                        invoiceNumber: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="issue-date">Issued date</Label>
-                  <Input
-                    id="issue-date"
-                    type="date"
-                    value={invoiceData.issueDate}
-                    onChange={(e) =>
-                      setInvoiceData({
-                        ...invoiceData,
-                        issueDate: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="due-date">Due date</Label>
-                  <Input
-                    id="due-date"
-                    value={invoiceData.dueDate}
-                    onChange={(e) =>
-                      setInvoiceData({
-                        ...invoiceData,
-                        dueDate: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-            </section>
-
-            <section aria-label="Invoice Items">
-              <InvoiceItems
-                items={invoiceData.items}
-                onItemsChange={(items) =>
-                  setInvoiceData({ ...invoiceData, items })
+              <CompanyDetailsForm
+                title="Your info"
+                data={invoiceData.sender}
+                onChange={(sender) =>
+                  setInvoiceData({ ...invoiceData, sender })
                 }
               />
-            </section>
 
-            <div className="grid grid-cols-2 gap-8">
-              <div className="space-y-2">
-                <Label htmlFor="memo">Memo</Label>
-                <Textarea
-                  id="memo"
-                  placeholder="Additional notes..."
-                  value={invoiceData.memo}
-                  onChange={(e) =>
-                    setInvoiceData({ ...invoiceData, memo: e.target.value })
+              <CompanyDetailsForm
+                title="Client info"
+                data={invoiceData.client}
+                onChange={(client) =>
+                  setInvoiceData({ ...invoiceData, client })
+                }
+              />
+
+              <section className="space-y-4" aria-label="Invoice Information">
+                <h2 className="text-lg font-medium">Invoice info</h2>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="invoice-number">Invoice #</Label>
+                    <Input
+                      id="invoice-number"
+                      value={invoiceData.invoiceNumber}
+                      onChange={(e) =>
+                        setInvoiceData({
+                          ...invoiceData,
+                          invoiceNumber: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="issue-date">Issued date</Label>
+                    <Input
+                      id="issue-date"
+                      type="date"
+                      value={invoiceData.issueDate}
+                      onChange={(e) =>
+                        setInvoiceData({
+                          ...invoiceData,
+                          issueDate: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="due-date">Due date</Label>
+                    <Input
+                      id="due-date"
+                      value={invoiceData.dueDate}
+                      onChange={(e) =>
+                        setInvoiceData({
+                          ...invoiceData,
+                          dueDate: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <section aria-label="Invoice Items">
+                <InvoiceItems
+                  items={invoiceData.items}
+                  onItemsChange={(items) =>
+                    setInvoiceData({ ...invoiceData, items })
                   }
                 />
-              </div>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <Label htmlFor="tax-rate">Tax %</Label>
-                  <Input
-                    id="tax-rate"
-                    type="number"
-                    className="w-24"
-                    value={invoiceData.taxRate}
+              </section>
+
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <Label htmlFor="memo">Memo</Label>
+                  <Textarea
+                    id="memo"
+                    placeholder="Additional notes..."
+                    value={invoiceData.memo}
                     onChange={(e) =>
-                      setInvoiceData({
-                        ...invoiceData,
-                        taxRate: Number(e.target.value) || 0,
-                      })
+                      setInvoiceData({ ...invoiceData, memo: e.target.value })
                     }
                   />
                 </div>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <Label htmlFor="tax-rate">Tax %</Label>
+                    <Input
+                      id="tax-rate"
+                      type="number"
+                      className="w-24"
+                      value={invoiceData.taxRate}
+                      onChange={(e) =>
+                        setInvoiceData({
+                          ...invoiceData,
+                          taxRate: Number(e.target.value) || 0,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </article>
-          <aside className="space-y-4">
-            <div ref={invoiceRef}>{renderTemplate()}</div>
+            </article>
+            <aside className="space-y-4">
+              <div ref={invoiceRef}>{renderTemplate()}</div>
 
-            <div className="flex gap-4">
-              <Button
-                className="flex-1 bg-primary"
-                size="lg"
-                onClick={handleSave}
-                disabled={loading}
-              >
-                {loading
-                  ? 'Saving...'
-                  : invoiceId
-                  ? 'Update Invoice'
-                  : 'Save Invoice'}
-              </Button>
-              {invoiceId ? (
+              <div className="flex gap-4">
                 <Button
-                  className="flex-1"
-                  variant="outline"
+                  className="flex-1 bg-primary"
                   size="lg"
-                  onClick={() => router.push('/dashboard')}
+                  onClick={handleSave}
+                  disabled={loading}
                 >
-                  Cancel
+                  {loading
+                    ? 'Saving...'
+                    : invoiceId
+                    ? 'Update Invoice'
+                    : 'Save Invoice'}
                 </Button>
-              ) : (
-                <Button
-                  className="flex-1"
-                  variant="outline"
-                  size="lg"
-                  onClick={generatePDF}
-                >
-                  Download PDF
-                </Button>
-              )}
-            </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-          </aside>
+                {invoiceId ? (
+                  <Button
+                    className="flex-1"
+                    variant="outline"
+                    size="lg"
+                    onClick={() => router.push('/dashboard')}
+                  >
+                    Cancel
+                  </Button>
+                ) : (
+                  <Button
+                    className="flex-1"
+                    variant="outline"
+                    size="lg"
+                    onClick={generatePDF}
+                  >
+                    Download PDF
+                  </Button>
+                )}
+              </div>
+              {error && <p className="text-sm text-destructive">{error}</p>}
+            </aside>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
