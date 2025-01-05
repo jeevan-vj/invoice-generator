@@ -33,6 +33,14 @@ export interface CompanyDetails extends Sender {
   logo?: string;
 }
 
+export interface InvoiceAdjustment {
+  id: string;
+  type: 'addition' | 'deduction';
+  description: string;
+  amount: number;
+  isPercentage: boolean;
+}
+
 export interface InvoiceData {
   id?: string;
   sender: CompanyDetails
@@ -44,6 +52,7 @@ export interface InvoiceData {
   memo?: string
   taxRate: number
   pdfUrl?: string
+  adjustments: InvoiceAdjustment[]
 }
 
 export interface Theme {

@@ -4,13 +4,18 @@ import {
   calculateSubtotal,
   calculateTax,
   formatCurrency,
+  calculateAdjustments,
 } from '@/utils/calculations';
 import Image from 'next/image';
 
 export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
   const subtotal = calculateSubtotal(data.items);
   const tax = calculateTax(subtotal, data.taxRate);
-  const total = subtotal + tax;
+  const adjustmentsTotal = calculateAdjustments(
+    subtotal,
+    data.adjustments || []
+  );
+  const total = subtotal + tax + adjustmentsTotal;
 
   if (
     !data.sender.firstName &&
@@ -152,6 +157,23 @@ export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
                 <span className="text-sm">Subtotal</span>
                 <span>{formatCurrency(subtotal)}</span>
               </div>
+              {data.adjustments.map((adjustment) => {
+                const amount = adjustment.isPercentage
+                  ? (subtotal * adjustment.amount) / 100
+                  : adjustment.amount;
+                return (
+                  <div key={adjustment.id} className="flex justify-between">
+                    <span className="text-sm">
+                      {adjustment.description}
+                      {adjustment.isPercentage && ` (${adjustment.amount}%)`}
+                    </span>
+                    <span>
+                      {adjustment.type === 'deduction' ? '-' : ''}
+                      {formatCurrency(amount)}
+                    </span>
+                  </div>
+                );
+              })}
               <div className="flex justify-between">
                 <span className="text-sm">Tax ({data.taxRate}%)</span>
                 <span>{formatCurrency(tax)}</span>
