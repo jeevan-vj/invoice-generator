@@ -29,7 +29,8 @@ import { getInvoiceService } from '@/lib/services/invoice-service';
 import { Header } from '@/components/header';
 import { InvoiceAdjustments } from './invoice-adjustments';
 import { calculateSubtotal } from '@/utils/calculations';
-// ...other template imports...
+import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
 
 //const PDFDownloadLink = dynamic(() => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink), { ssr: false })
 //const InvoicePDF = dynamic(() => import('./components/invoice-pdf'), { ssr: false })
@@ -77,6 +78,7 @@ export default function InvoiceGenerator() {
     secondary: '#4d4d4d',
   });
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const loadInvoice = async () => {
@@ -360,6 +362,23 @@ export default function InvoiceGenerator() {
           </div>
         </Suspense>
       </main>
+      <div className="fixed top-4 right-4">
+        {user ? (
+          <Link
+            href="/dashboard"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Dashboard
+          </Link>
+        ) : (
+          <Link
+            href="/auth/sign-in"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Sign In
+          </Link>
+        )}
+      </div>
     </>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import { InvoiceProvider } from '@/lib/contexts/invoice-context';
+import { AuthProvider } from '@/components/providers/auth-provider'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
       'Create and download professional invoices for free. Generate PDF invoices instantly with our easy-to-use online tool.',
     type: 'website',
     locale: 'en_US',
-    url: 'https://yourdomain.com',
+    url: 'https://invoice-generator.iamjeevan.com',
     siteName: 'Free Invoice Generator',
     images: [
       {
@@ -92,7 +93,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <InvoiceProvider>{children}</InvoiceProvider>
+        <AuthProvider>
+          <InvoiceProvider>{children}</InvoiceProvider>
+        </AuthProvider>
       </body>
     </html>
   );

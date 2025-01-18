@@ -1,34 +1,24 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { Plus } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { useAuth } from '@/contexts/auth-context'
 
-export function DashboardHeader() {
-  const searchParams = useSearchParams();
-  const isEdit = searchParams.has('id');
+export default function DashboardHeader() {
+  const { user, signOut } = useAuth()
 
   return (
-    <div className="flex items-center justify-between">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          {isEdit ? 'Edit Invoice' : 'Invoices'}
-        </h1>
-        <p className="text-muted-foreground">
-          {isEdit
-            ? 'Update your invoice details'
-            : 'Manage your invoices and track payments'}
-        </p>
-      </div>
-      {!isEdit && (
-        <Link href="/">
-          <Button className="bg-primary">
-            <Plus className="mr-2 h-4 w-4" />
-            New Invoice
-          </Button>
-        </Link>
+    <header className="flex justify-between items-center mb-8">
+      <h1 className="text-2xl font-bold">Dashboard</h1>
+      {user && (
+        <div className="flex items-center gap-4">
+          <span>{user.email}</span>
+          <button
+            onClick={() => signOut()}
+            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+          >
+            Sign Out
+          </button>
+        </div>
       )}
-    </div>
-  );
+    </header>
+  )
 }

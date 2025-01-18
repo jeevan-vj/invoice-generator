@@ -1,31 +1,41 @@
 'use client';
 
-import { Suspense } from 'react';
-import { InvoiceList } from '@/components/dashboard/invoice-list';
-import { EmptyState } from '@/components/dashboard/empty-state';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { useInvoices } from '@/lib/contexts/invoice-context';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/auth-context';
 
-export default function DashboardPage() {
-  const { invoices } = useInvoices();
+export default function Dashboard() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  // useEffect(() => {
+  //   console.log('user', user)
+  //   debugger;
+  //   if (!loading && !user) {
+  //     console.log('No user found, redirecting to sign in')
+  //     router.push('/auth/sign-in')
+  //   }
+  // }, [user, loading, router])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
+  }
 
   return (
-    <main className="container mx-auto p-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-semibold">Invoices</h1>
-        <Link href="/">
-          <Button>Create Invoice</Button>
-        </Link>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+      <div className="bg-white rounded-lg shadow p-6">
+        <p>Welcome, {user.email}</p>
+        {/* Add your dashboard content here */}
       </div>
-
-      <Suspense fallback={<div>Loading...</div>}>
-        {invoices.length > 0 ? (
-          <InvoiceList invoices={invoices} />
-        ) : (
-          <EmptyState />
-        )}
-      </Suspense>
-    </main>
-  );
+    </div>
+  )
 }
