@@ -10,7 +10,7 @@ interface LogoUploadProps {
 export function LogoUpload({ value, onChange }: LogoUploadProps) {
   const [error, setError] = useState<string>('');
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setError('');
 
@@ -26,11 +26,23 @@ export function LogoUpload({ value, onChange }: LogoUploadProps) {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      onChange(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Create a new promise-based FileReader
+      const readFileAsDataURL = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      };
+
+      const dataUrl = await readFileAsDataURL(file);
+      onChange(dataUrl);
+    } catch (err) {
+      setError('Failed to read the image file');
+      console.error('Error reading file:', err);
+    }
   };
 
   return (
@@ -64,7 +76,10 @@ export function LogoUpload({ value, onChange }: LogoUploadProps) {
           variant="outline"
           size="sm"
           className="relative"
-          onClick={() => document.getElementById('logo-upload')?.click()}
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById('logo-upload')?.click();
+          }}
         >
           Upload Logo
           <input
@@ -73,6 +88,7 @@ export function LogoUpload({ value, onChange }: LogoUploadProps) {
             className="absolute inset-0 cursor-pointer opacity-0"
             accept="image/*"
             onChange={handleFileChange}
+            onClick={(e) => e.stopPropagation()}
           />
         </Button>
         {error && <p className="text-xs text-destructive">{error}</p>}
