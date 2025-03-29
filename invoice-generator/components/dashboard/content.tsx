@@ -1,5 +1,38 @@
 import { FileText, Plus, DollarSign, Users, Calendar, BarChart3, Settings } from "lucide-react"
 import Link from "next/link"
+import List01 from "./list-01"
+
+// Sample invoice data
+const INVOICES = [
+  {
+    id: "1",
+    title: "INV-2024-001",
+    description: "Acme Corp",
+    balance: "$2,500",
+    type: "savings" as const,
+  },
+  {
+    id: "2",
+    title: "INV-2024-002",
+    description: "Tech Solutions Inc",
+    balance: "$3,750",
+    type: "checking" as const,
+  },
+  {
+    id: "3",
+    title: "INV-2024-003",
+    description: "Global Industries",
+    balance: "$1,800",
+    type: "investment" as const,
+  },
+  {
+    id: "4",
+    title: "INV-2024-004",
+    description: "Creative Design Co",
+    balance: "$4,200",
+    type: "debt" as const,
+  },
+]
 
 export default function Content() {
   return (
@@ -54,20 +87,11 @@ export default function Content() {
               New Invoice
             </Link>
           </div>
-          <div className="space-y-4">
-            {/* Sample Invoice Items - Replace with actual data */}
-            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#1A1A1E] rounded-lg">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">INV-2024-001</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Acme Corp</p>
-              </div>
-              <div className="text-right">
-                <p className="font-medium text-gray-900 dark:text-white">$2,500</p>
-                <p className="text-sm text-green-500">Paid</p>
-              </div>
-            </div>
-            {/* Add more invoice items here */}
-          </div>
+          <List01 
+            totalBalance="$12,250"
+            accounts={INVOICES}
+            className="border-none shadow-none"
+          />
         </div>
 
         {/* Analytics */}
