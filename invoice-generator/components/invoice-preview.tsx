@@ -34,8 +34,8 @@ export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
   }
 
   return (
-    <Card className="bg-white">
-      <CardContent className="p-6" data-invoice-template>
+    <Card className="bg-white print:shadow-none border-muted">
+      <CardContent className="p-6 text-black dark:text-black" data-invoice-template>
         <div className="space-y-6">
           <div className="flex justify-between items-start">
             <div>
@@ -45,17 +45,17 @@ export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
               >
                 INVOICE
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-600">
                 #{data.invoiceNumber}
               </p>
             </div>
             <div className="flex gap-4 items-start">
               <div className="text-right">
-                <p className="text-sm">Issue Date: {data.issueDate}</p>
-                <p className="text-sm">Due Date: {data.dueDate}</p>
+                <p className="text-sm text-gray-700">Issue Date: {data.issueDate}</p>
+                <p className="text-sm text-gray-700">Due Date: {data.dueDate}</p>
               </div>
               {data.sender.logo && (
-                <div className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-muted">
+                <div className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-gray-200">
                   <Image
                     src={data.sender.logo}
                     alt="Company logo"
@@ -75,11 +75,11 @@ export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
               >
                 From
               </p>
-              <p className="font-medium">{`${data.sender.firstName} ${data.sender.lastName}`}</p>
+              <p className="font-medium text-gray-900">{`${data.sender.firstName} ${data.sender.lastName}`}</p>
               {data.sender.companyName && (
-                <p className="text-sm">{data.sender.companyName}</p>
+                <p className="text-sm text-gray-800">{data.sender.companyName}</p>
               )}
-              <div className="text-sm text-muted-foreground space-y-1">
+              <div className="text-sm text-gray-600 space-y-1">
                 <p>{data.sender.email}</p>
                 {data.sender.phone && <p>{data.sender.phone}</p>}
                 {data.sender.address && (
@@ -98,11 +98,11 @@ export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
               >
                 To
               </p>
-              <p className="font-medium">{`${data.client.firstName} ${data.client.lastName}`}</p>
+              <p className="font-medium text-gray-900">{`${data.client.firstName} ${data.client.lastName}`}</p>
               {data.client.companyName && (
-                <p className="text-sm">{data.client.companyName}</p>
+                <p className="text-sm text-gray-800">{data.client.companyName}</p>
               )}
-              <div className="text-sm text-muted-foreground space-y-1">
+              <div className="text-sm text-gray-600 space-y-1">
                 <p>{data.client.email}</p>
                 {data.client.phone && <p>{data.client.phone}</p>}
                 {data.client.address && (
@@ -116,33 +116,33 @@ export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
             </div>
           </div>
 
-          <div className="border rounded-lg">
+          <div className="border border-gray-200 rounded-lg">
             <table className="w-full">
               <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="px-4 py-2 text-left text-sm font-medium">
+                <tr className="border-b border-gray-200 bg-gray-50">
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
                     Description
                   </th>
-                  <th className="px-4 py-2 text-right text-sm font-medium">
+                  <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">
                     Qty
                   </th>
-                  <th className="px-4 py-2 text-right text-sm font-medium">
+                  <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">
                     Price
                   </th>
-                  <th className="px-4 py-2 text-right text-sm font-medium">
+                  <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">
                     Amount
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {data.items.map((item) => (
-                  <tr key={item.id} className="border-b last:border-0">
-                    <td className="px-4 py-2">{item.description}</td>
-                    <td className="px-4 py-2 text-right">{item.quantity}</td>
-                    <td className="px-4 py-2 text-right">
+                  <tr key={item.id} className="border-b border-gray-200 last:border-0">
+                    <td className="px-4 py-2 text-gray-800">{item.description}</td>
+                    <td className="px-4 py-2 text-right text-gray-800">{item.quantity}</td>
+                    <td className="px-4 py-2 text-right text-gray-800">
                       {formatCurrency(item.price)}
                     </td>
-                    <td className="px-4 py-2 text-right font-medium">
+                    <td className="px-4 py-2 text-right font-medium text-gray-800">
                       {formatCurrency(item.quantity * item.price)}
                     </td>
                   </tr>
@@ -154,8 +154,8 @@ export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
           <div className="flex justify-end">
             <div className="w-60 space-y-2">
               <div className="flex justify-between">
-                <span className="text-sm">Subtotal</span>
-                <span>{formatCurrency(subtotal)}</span>
+                <span className="text-sm text-gray-700">Subtotal</span>
+                <span className="text-gray-800">{formatCurrency(subtotal)}</span>
               </div>
               {data.adjustments.map((adjustment) => {
                 const amount = adjustment.isPercentage
@@ -163,11 +163,11 @@ export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
                   : adjustment.amount;
                 return (
                   <div key={adjustment.id} className="flex justify-between">
-                    <span className="text-sm">
+                    <span className="text-sm text-gray-700">
                       {adjustment.description}
                       {adjustment.isPercentage && ` (${adjustment.amount}%)`}
                     </span>
-                    <span>
+                    <span className="text-gray-800">
                       {adjustment.type === 'deduction' ? '-' : ''}
                       {formatCurrency(amount)}
                     </span>
@@ -175,12 +175,12 @@ export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
                 );
               })}
               <div className="flex justify-between">
-                <span className="text-sm">Tax ({data.taxRate}%)</span>
-                <span>{formatCurrency(tax)}</span>
+                <span className="text-sm text-gray-700">Tax ({data.taxRate}%)</span>
+                <span className="text-gray-800">{formatCurrency(tax)}</span>
               </div>
-              <div className="border-t pt-2">
+              <div className="border-t border-gray-200 pt-2">
                 <div className="flex justify-between font-medium">
-                  <span>Total</span>
+                  <span className="text-gray-900">Total</span>
                   <span style={{ color: theme.primary }}>
                     {formatCurrency(total)}
                   </span>
@@ -190,14 +190,14 @@ export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
           </div>
 
           {data.memo && (
-            <div className="border-t pt-4">
+            <div className="border-t border-gray-200 pt-4">
               <p
                 className="text-sm font-medium mb-2"
                 style={{ color: theme.primary }}
               >
                 Notes
               </p>
-              <p className="text-sm text-muted-foreground">{data.memo}</p>
+              <p className="text-sm text-gray-600">{data.memo}</p>
             </div>
           )}
         </div>

@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import { InvoiceProvider } from '@/lib/contexts/invoice-context';
 import { AuthProvider } from '@/components/providers/auth-provider'
+import { ThemeProvider } from '@/components/theme-provider';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -94,7 +95,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <InvoiceProvider>{children}</InvoiceProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <InvoiceProvider>{children}</InvoiceProvider>
+          </ThemeProvider>
+
         </AuthProvider>
       </body>
     </html>

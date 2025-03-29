@@ -176,7 +176,7 @@ export default function InvoiceGenerator() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
           <p className="text-muted-foreground">Loading invoice...</p>
@@ -188,7 +188,7 @@ export default function InvoiceGenerator() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-background">
         <Suspense fallback={<div>Loading...</div>}>
           <div className="container mx-auto p-8 space-y-8">
             <TemplateSelector
@@ -200,7 +200,7 @@ export default function InvoiceGenerator() {
             <div className="grid gap-8 lg:grid-cols-2">
               <article className="space-y-8">
                 <header>
-                  <h1 className="text-3xl font-semibold">
+                  <h1 className="text-3xl font-semibold text-foreground">
                     Create your invoice
                   </h1>
                   <meta
@@ -322,7 +322,9 @@ export default function InvoiceGenerator() {
                 </div>
               </article>
               <aside className="space-y-4">
-                <div ref={invoiceRef}>{renderTemplate()}</div>
+                <div className="overflow-hidden print:shadow-none" ref={invoiceRef}>
+                  {renderTemplate()}
+                </div>
 
                 <div className="flex gap-4">
                   <Button

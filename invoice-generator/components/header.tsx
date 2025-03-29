@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,13 @@ import {
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Only show theme toggle after component mounts to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <>
@@ -31,6 +39,19 @@ export function Header() {
             >
               Dashboard
             </Link>
+            
+            {/* Theme Toggle Button */}
+            {mounted && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </Button>
+            )}
+            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -84,6 +105,25 @@ export function Header() {
             >
               Sign In
             </Link>
+            {/* Theme Toggle in Mobile Menu */}
+            {mounted && (
+              <button 
+                className="flex items-center text-lg font-medium hover:text-primary"
+                onClick={() => {
+                  setTheme(theme === 'dark' ? 'light' : 'dark');
+                }}
+              >
+                {theme === 'dark' ? (
+                  <>
+                    <Sun className="mr-2 h-5 w-5" /> Light Mode
+                  </>
+                ) : (
+                  <>
+                    <Moon className="mr-2 h-5 w-5" /> Dark Mode
+                  </>
+                )}
+              </button>
+            )}
           </nav>
         </div>
       )}
