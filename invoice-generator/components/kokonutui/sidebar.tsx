@@ -1,19 +1,22 @@
 "use client"
 
 import {
-  BarChart2,
+  FileText,
+  Plus,
+  DollarSign,
+  Users,
+  Calendar,
+  BarChart3,
+  Settings,
+  HelpCircle,
+  Menu,
   Receipt,
   Building2,
   CreditCard,
   Folder,
-  Wallet,
-  Users2,
   Shield,
   MessagesSquare,
   Video,
-  Settings,
-  HelpCircle,
-  Menu,
 } from "lucide-react"
 
 import { Home } from "lucide-react"
@@ -67,28 +70,26 @@ export default function Sidebar() {
       >
         <div className="h-full flex flex-col">
           <Link
-            href="https://kokonutui.com/"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/"
             className="h-16 px-6 flex items-center border-b border-gray-200 dark:border-[#1F1F23]"
           >
             <div className="flex items-center gap-3">
               <Image
-                src="https://kokonutui.com/logo.svg"
-                alt="Acme"
+                src="/logo.svg"
+                alt="Invoice Generator"
                 width={32}
                 height={32}
                 className="flex-shrink-0 hidden dark:block"
               />
               <Image
-                src="https://kokonutui.com/logo-black.svg"
-                alt="Acme"
+                src="/logo-black.svg"
+                alt="Invoice Generator"
                 width={32}
                 height={32}
                 className="flex-shrink-0 block dark:hidden"
               />
               <span className="text-lg font-semibold hover:cursor-pointer text-gray-900 dark:text-white">
-                KokonutUI
+                Invoice Generator
               </span>
             </div>
           </Link>
@@ -97,57 +98,74 @@ export default function Sidebar() {
             <div className="space-y-6">
               <div>
                 <div className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Overview
+                  Invoices
                 </div>
                 <div className="space-y-1">
-                  <NavItem href="#" icon={Home}>
-                    Dashboard
+                  <NavItem href="/invoices" icon={FileText}>
+                    All Invoices
                   </NavItem>
-                  <NavItem href="#" icon={BarChart2}>
-                    Analytics
+                  <NavItem href="/invoices/new" icon={Plus}>
+                    Create Invoice
                   </NavItem>
-                  <NavItem href="#" icon={Building2}>
-                    Organization
+                  <NavItem href="/invoices/drafts" icon={Folder}>
+                    Drafts
                   </NavItem>
-                  <NavItem href="#" icon={Folder}>
-                    Projects
+                  <NavItem href="/invoices/sent" icon={Receipt}>
+                    Sent
+                  </NavItem>
+                  <NavItem href="/invoices/paid" icon={DollarSign}>
+                    Paid
                   </NavItem>
                 </div>
               </div>
 
               <div>
                 <div className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Finance
+                  Clients
                 </div>
                 <div className="space-y-1">
-                  <NavItem href="#" icon={Wallet}>
-                    Transactions
+                  <NavItem href="/clients" icon={Users}>
+                    All Clients
                   </NavItem>
-                  <NavItem href="#" icon={Receipt}>
-                    Invoices
+                  <NavItem href="/clients/new" icon={Plus}>
+                    Add Client
                   </NavItem>
-                  <NavItem href="#" icon={CreditCard}>
-                    Payments
+                  <NavItem href="/clients/import" icon={Folder}>
+                    Import Clients
                   </NavItem>
                 </div>
               </div>
 
               <div>
                 <div className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Team
+                  Business
                 </div>
                 <div className="space-y-1">
-                  <NavItem href="#" icon={Users2}>
-                    Members
+                  <NavItem href="/business/profile" icon={Building2}>
+                    Business Profile
                   </NavItem>
-                  <NavItem href="#" icon={Shield}>
-                    Permissions
+                  <NavItem href="/business/settings" icon={Settings}>
+                    Settings
                   </NavItem>
-                  <NavItem href="#" icon={MessagesSquare}>
-                    Chat
+                  <NavItem href="/business/templates" icon={FileText}>
+                    Invoice Templates
                   </NavItem>
-                  <NavItem href="#" icon={Video}>
-                    Meetings
+                </div>
+              </div>
+
+              <div>
+                <div className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Reports
+                </div>
+                <div className="space-y-1">
+                  <NavItem href="/reports/revenue" icon={BarChart3}>
+                    Revenue Reports
+                  </NavItem>
+                  <NavItem href="/reports/clients" icon={Users}>
+                    Client Reports
+                  </NavItem>
+                  <NavItem href="/reports/taxes" icon={Receipt}>
+                    Tax Reports
                   </NavItem>
                 </div>
               </div>
@@ -156,11 +174,11 @@ export default function Sidebar() {
 
           <div className="px-4 py-4 border-t border-gray-200 dark:border-[#1F1F23]">
             <div className="space-y-1">
-              <NavItem href="#" icon={Settings}>
-                Settings
+              <NavItem href="/help" icon={HelpCircle}>
+                Help Center
               </NavItem>
-              <NavItem href="#" icon={HelpCircle}>
-                Help
+              <NavItem href="/support" icon={MessagesSquare}>
+                Support
               </NavItem>
             </div>
           </div>

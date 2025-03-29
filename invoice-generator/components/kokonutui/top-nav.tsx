@@ -2,7 +2,7 @@
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
-import { Bell, ChevronRight } from "lucide-react"
+import { Bell, ChevronRight, Plus, Search, Filter } from "lucide-react"
 import Profile01 from "./profile-01"
 import Link from "next/link"
 import { ThemeToggle } from "../theme-toggle"
@@ -14,8 +14,8 @@ interface BreadcrumbItem {
 
 export default function TopNav() {
   const breadcrumbs: BreadcrumbItem[] = [
-    { label: "kokonutUI", href: "#" },
-    { label: "dashboard", href: "#" },
+    { label: "Invoice Generator", href: "/" },
+    { label: "Dashboard", href: "/dashboard" },
   ]
 
   return (
@@ -39,11 +39,40 @@ export default function TopNav() {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-4 ml-auto sm:ml-0">
+        {/* Search */}
+        <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-[#1A1A1E] rounded-lg">
+          <Search className="h-4 w-4 text-gray-500" />
+          <input
+            type="text"
+            placeholder="Search invoices..."
+            className="bg-transparent border-none focus:outline-none text-sm text-gray-900 dark:text-white placeholder-gray-500"
+          />
+        </div>
+
+        {/* Filter */}
         <button
           type="button"
-          className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-[#1F1F23] rounded-full transition-colors"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-[#1F1F23] rounded-lg transition-colors"
         >
-          <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-300" />
+          <Filter className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+        </button>
+
+        {/* New Invoice */}
+        <Link
+          href="/invoices/new"
+          className="hidden sm:flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          <span>New Invoice</span>
+        </Link>
+
+        {/* Notifications */}
+        <button
+          type="button"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-[#1F1F23] rounded-lg transition-colors relative"
+        >
+          <Bell className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+          <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
         </button>
 
         <ThemeToggle />
@@ -51,11 +80,11 @@ export default function TopNav() {
         <DropdownMenu>
           <DropdownMenuTrigger className="focus:outline-none">
             <Image
-              src="https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png"
+              src="/avatar.png"
               alt="User avatar"
-              width={28}
-              height={28}
-              className="rounded-full ring-2 ring-gray-200 dark:ring-[#2B2B30] sm:w-8 sm:h-8 cursor-pointer"
+              width={32}
+              height={32}
+              className="rounded-full ring-2 ring-gray-200 dark:ring-[#2B2B30] cursor-pointer"
             />
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -63,7 +92,7 @@ export default function TopNav() {
             sideOffset={8}
             className="w-[280px] sm:w-80 bg-background border-border rounded-lg shadow-lg"
           >
-            <Profile01 avatar="https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png" />
+            <Profile01 avatar="/avatar.png" />
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

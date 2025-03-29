@@ -4,6 +4,7 @@ import './globals.css';
 import { InvoiceProvider } from '@/lib/contexts/invoice-context';
 import { AuthProvider } from '@/components/providers/auth-provider'
 import { ThemeProvider } from '@/components/theme-provider';
+import { Providers } from './providers';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -94,12 +95,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <InvoiceProvider>{children}</InvoiceProvider>
-          </ThemeProvider>
-
-        </AuthProvider>
+        <Providers>
+          <AuthProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+              <InvoiceProvider>{children}</InvoiceProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </Providers>
       </body>
     </html>
   );
