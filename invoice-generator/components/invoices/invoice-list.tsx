@@ -11,48 +11,24 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
-
-interface Invoice {
-  id: string
-  number: string
-  client: string
-  date: Date
-  dueDate: Date
-  amount: number
-  status: "draft" | "sent" | "paid" | "overdue"
-}
-
-// Sample data - replace with actual data fetching
-const sampleInvoices: Invoice[] = [
-  {
-    id: "1",
-    number: "INV-2024-001",
-    client: "Acme Corp",
-    date: new Date("2024-03-01"),
-    dueDate: new Date("2024-03-15"),
-    amount: 2500,
-    status: "paid",
-  },
-  {
-    id: "2",
-    number: "INV-2024-002",
-    client: "TechStart Inc",
-    date: new Date("2024-03-05"),
-    dueDate: new Date("2024-03-19"),
-    amount: 3500,
-    status: "sent",
-  },
-  // Add more sample invoices as needed
-]
+import { useRouter } from "next/navigation"
+import { useInvoices } from "@/lib/contexts/invoice-context"
+import { InvoiceData } from "@/types/invoice"
+import { calculateSubtotal, calculateTax, calculateAdjustments } from "@/utils/calculations"
 
 interface InvoiceListProps {
   viewMode: "list" | "grid"
+  status?: InvoiceData["status"]
 }
 
-export default function InvoiceList({ viewMode }: InvoiceListProps) {
+export default function InvoiceList({ viewMode, status }: InvoiceListProps) {
+  const router = useRouter()
+  const { invoices, deleteInvoice } = useInvoices()
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([])
 
-  const getStatusColor = (status: Invoice["status"]) => {
+  const filteredInvoices = status ? invoices.filter(inv => inv.status === status) : invoices
+
+  const getStatusColor = (status: InvoiceData["status"] | undefined) => {
     switch (status) {
       case "draft":
         return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
@@ -67,6 +43,11 @@ export default function InvoiceList({ viewMode }: InvoiceListProps) {
     }
   }
 
+  const formatStatus = (status: InvoiceData["status"] | undefined) => {
+    if (!status) return "Draft"
+    return status.charAt(0).toUpperCase() + status.slice(1)
+  }
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -74,40 +55,66 @@ export default function InvoiceList({ viewMode }: InvoiceListProps) {
     }).format(amount)
   }
 
+  const calculateTotal = (invoice: InvoiceData) => {
+    const subtotal = calculateSubtotal(invoice.items)
+    const tax = calculateTax(subtotal, invoice.taxRate)
+    const adjustments = calculateAdjustments(subtotal, invoice.adjustments)
+    return subtotal + tax + adjustments
+  }
+
+  const formatDate = (dateString: string) => {
+    if (dateString === "Upon Receipt") return dateString
+    try {
+      return format(new Date(dateString), "MMM d, yyyy")
+    } catch (error) {
+      return dateString
+    }
+  }
+
+  const handleEdit = (invoiceId: string) => {
+    router.push(`/invoices/edit?id=${invoiceId}`)
+  }
+
+  const handleDelete = async (invoiceId: string) => {
+    if (confirm("Are you sure you want to delete this invoice?")) {
+      await deleteInvoice(invoiceId)
+    }
+  }
+
   if (viewMode === "grid") {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sampleInvoices.map((invoice) => (
+        {filteredInvoices.map((invoice) => (
           <div
             key={invoice.id}
             className="bg-white dark:bg-[#0F0F12] rounded-xl p-6 border border-gray-200 dark:border-[#1F1F23]"
           >
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="font-medium text-gray-900 dark:text-white">{invoice.number}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{invoice.client}</p>
+                <h3 className="font-medium text-gray-900 dark:text-white">{invoice.invoiceNumber}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{invoice.client.firstName} {invoice.client.lastName}</p>
               </div>
               <Badge className={getStatusColor(invoice.status)}>
-                {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                {formatStatus(invoice.status)}
               </Badge>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500 dark:text-gray-400">Date</span>
                 <span className="text-gray-900 dark:text-white">
-                  {format(invoice.date, "MMM d, yyyy")}
+                  {formatDate(invoice.issueDate)}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500 dark:text-gray-400">Due Date</span>
                 <span className="text-gray-900 dark:text-white">
-                  {format(invoice.dueDate, "MMM d, yyyy")}
+                  {formatDate(invoice.dueDate)}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500 dark:text-gray-400">Amount</span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {formatCurrency(invoice.amount)}
+                  {formatCurrency(calculateTotal(invoice))}
                 </span>
               </div>
             </div>
@@ -119,11 +126,7 @@ export default function InvoiceList({ viewMode }: InvoiceListProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <FileText className="mr-2 h-4 w-4" />
-                    View
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleEdit(invoice.id!)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </DropdownMenuItem>
@@ -135,7 +138,10 @@ export default function InvoiceList({ viewMode }: InvoiceListProps) {
                     <Download className="mr-2 h-4 w-4" />
                     Download
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-600">
+                  <DropdownMenuItem 
+                    className="text-red-600"
+                    onClick={() => handleDelete(invoice.id!)}
+                  >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete
                   </DropdownMenuItem>
@@ -178,34 +184,36 @@ export default function InvoiceList({ viewMode }: InvoiceListProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-[#1F1F23]">
-            {sampleInvoices.map((invoice) => (
+            {filteredInvoices.map((invoice) => (
               <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-[#1A1A1E]">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900 dark:text-white">
-                    {invoice.number}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900 dark:text-white">{invoice.client}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900 dark:text-white">
-                    {format(invoice.date, "MMM d, yyyy")}
+                    {invoice.invoiceNumber}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900 dark:text-white">
-                    {format(invoice.dueDate, "MMM d, yyyy")}
+                    {invoice.client.firstName} {invoice.client.lastName}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900 dark:text-white">
+                    {formatDate(invoice.issueDate)}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900 dark:text-white">
+                    {formatDate(invoice.dueDate)}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900 dark:text-white">
-                    {formatCurrency(invoice.amount)}
+                    {formatCurrency(calculateTotal(invoice))}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <Badge className={getStatusColor(invoice.status)}>
-                    {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                    {formatStatus(invoice.status)}
                   </Badge>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -216,11 +224,7 @@ export default function InvoiceList({ viewMode }: InvoiceListProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <FileText className="mr-2 h-4 w-4" />
-                        View
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleEdit(invoice.id!)}>
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
@@ -232,7 +236,10 @@ export default function InvoiceList({ viewMode }: InvoiceListProps) {
                         <Download className="mr-2 h-4 w-4" />
                         Download
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600">
+                      <DropdownMenuItem 
+                        className="text-red-600"
+                        onClick={() => handleDelete(invoice.id!)}
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete
                       </DropdownMenuItem>

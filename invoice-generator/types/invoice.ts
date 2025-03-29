@@ -53,6 +53,8 @@ export interface InvoiceData {
   taxRate: number
   pdfUrl?: string
   adjustments: InvoiceAdjustment[]
+  status: 'draft' | 'sent' | 'paid' | 'overdue'
+  total: number
 }
 
 export interface Theme {

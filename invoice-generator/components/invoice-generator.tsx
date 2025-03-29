@@ -58,6 +58,8 @@ const initialInvoiceData: InvoiceData = {
   items: [],
   taxRate: 0,
   adjustments: [],
+  status: 'draft',
+  total: 0
 };
 
 export default function InvoiceGenerator() {
@@ -79,6 +81,13 @@ export default function InvoiceGenerator() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
+
+  // Sync invoiceData with currentInvoice when it changes
+  useEffect(() => {
+    if (currentInvoice) {
+      setInvoiceData(currentInvoice);
+    }
+  }, [currentInvoice]);
 
   useEffect(() => {
     const loadInvoice = async () => {
@@ -103,6 +112,7 @@ export default function InvoiceGenerator() {
         }
       } catch (error) {
         console.error('Failed to load invoice:', error);
+        // Show error toast or notification here
       } finally {
         setIsLoading(false);
       }
@@ -162,15 +172,15 @@ export default function InvoiceGenerator() {
 
   const handleSave = async () => {
     try {
-      console.log('Saving invoice with adjustments:', invoiceData.adjustments);
-
       if (!invoiceData.pdfUrl) {
         await generatePDF();
       }
       await saveInvoice(invoiceData);
-      router.push('/dashboard');
+      // Navigate to invoices list after successful save
+      router.push('/dashboard/invoices');
     } catch (err) {
       console.error('Failed to save invoice:', err);
+      // Show error toast or notification here
     }
   };
 

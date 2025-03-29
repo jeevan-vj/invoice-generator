@@ -101,19 +101,19 @@ export default function Sidebar() {
                   Invoices
                 </div>
                 <div className="space-y-1">
-                  <NavItem href="/invoices" icon={FileText}>
+                  <NavItem href="/dashboard/invoices" icon={FileText}>
                     All Invoices
                   </NavItem>
-                  <NavItem href="/invoices/new" icon={Plus}>
+                  <NavItem href="/dashboard/invoices/new" icon={Plus}>
                     Create Invoice
                   </NavItem>
-                  <NavItem href="/invoices/drafts" icon={Folder}>
+                  <NavItem href="/dashboard/invoices?status=draft" icon={Folder}>
                     Drafts
                   </NavItem>
-                  <NavItem href="/invoices/sent" icon={Receipt}>
+                  <NavItem href="/dashboard/invoices?status=sent" icon={Receipt}>
                     Sent
                   </NavItem>
-                  <NavItem href="/invoices/paid" icon={DollarSign}>
+                  <NavItem href="/dashboard/invoices?status=paid" icon={DollarSign}>
                     Paid
                   </NavItem>
                 </div>
