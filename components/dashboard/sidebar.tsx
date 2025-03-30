@@ -140,10 +140,10 @@ export default function Sidebar() {
                   </div>
                 )}
                 <div className="space-y-1">
-                  <NavItem href="/clients" icon={Users}>
+                  <NavItem href="/dashboard/clients" icon={Users}>
                     All Clients
                   </NavItem>
-                  <NavItem href="/clients/new" icon={Plus}>
+                  <NavItem href="/dashboard/clients/new" icon={Plus}>
                     Add Client
                   </NavItem>
                   <NavItem href="/clients/import" icon={Folder}>
