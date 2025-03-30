@@ -5,6 +5,7 @@ import Sidebar from "./sidebar"
 import TopNav from "./top-nav"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
+import { Toaster } from "@/components/ui/toaster"
 
 interface LayoutProps {
   children: ReactNode
@@ -31,6 +32,7 @@ export default function Layout({ children }: LayoutProps) {
         </header>
         <main className="flex-1 overflow-auto p-6 bg-white dark:bg-[#0F0F12]">{children}</main>
       </div>
+      <Toaster />
     </div>
   )
 }

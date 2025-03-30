@@ -159,7 +159,7 @@ export default function Sidebar() {
                   </div>
                 )}
                 <div className="space-y-1">
-                  <NavItem href="/business/profile" icon={Building2}>
+                  <NavItem href="/dashboard/business/profile" icon={Building2}>
                     Business Profile
                   </NavItem>
                   <NavItem href="/business/settings" icon={Settings}>

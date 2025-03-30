@@ -1,0 +1,188 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Cursor Rules for Next.js React Application
+
+## Rule 1: Use TypeScript
+- **Description**: All files should use TypeScript (`.ts` or `.tsx`) instead of JavaScript.
+- **Match**: `**/*.{js,jsx}`
+- **Suggestion**: Convert this file to TypeScript (`.ts` or `.tsx`) and add appropriate type annotations.
+- **References**:
+  - [Awesome CursorRules for Next.js and React](https://github.com/PatrickJS/awesome-cursorrules)
+
+---
+
+## Rule 2: Follow Next.js Conventions
+- **Description**: Ensure that Next.js conventions are followed, such as using the `pages` directory for routing and `getStaticProps` or `getServerSideProps` for data fetching.
+- **Match**: `**/*`
+- **Examples**:
+  - **Bad**: Fetch data directly in a React component using `fetch`.
+  - **Good**: Use `getStaticProps` or `getServerSideProps` for data fetching in Next.js.
+- **References**:
+  - [Next.js Cursor Rules](https://gist.github.com/VidhyaKumar/1cc0394307ca91ef1c757ce3d0e6e85b)
+
+---
+
+## Rule 3: Use Functional Components
+- **Description**: All React components should be functional components. Avoid using class components.
+- **Match**: `**/*.{js,jsx,ts,tsx}`
+- **Examples**:
+  - **Bad**:
+    ```javascript
+    class MyComponent extends React.Component {
+      render() {
+        return <div>Hello</div>;
+      }
+    }
+    ```
+  - **Good**:
+    ```javascript
+    const MyComponent = () => <div>Hello</div>;
+    ```
+
+---
+
+## Rule 4: Enforce React Hooks Rules
+- **Description**: Ensure that React hooks are used correctly, following the rules of hooks.
+- **Match**: `**/*.{js,jsx,ts,tsx}`
+- **Examples**:
+  - **Bad**:
+    ```javascript
+    const [count, setCount] = useState(0);
+    if (someCondition) {
+      useEffect(() => {
+        console.log(count);
+      }, []);
+    }
+    ```
+  - **Good**:
+    ```javascript
+    const [count, setCount] = useState(0);
+    useEffect(() => {
+      if (someCondition) {
+        console.log(count);
+      }
+    }, [someCondition, count]);
+    ```
+
+---
+
+## Rule 5: Use Prettier for Formatting
+- **Description**: Ensure that all code is formatted using Prettier.
+- **Match**: `**/*.{js,jsx,ts,tsx,json,css,scss,md}`
+- **Suggestion**: Run Prettier to format this file.
+
+---
+
+## Rule 6: Use ESLint for Linting
+- **Description**: Ensure that all code passes ESLint checks with the configured rules.
+- **Match**: `**/*.{js,jsx,ts,tsx}`
+- **Suggestion**: Run ESLint to fix linting issues in this file.
+
+---
+
+## Rule 7: Use Consistent Imports
+- **Description**: Organize imports in a consistent order: external libraries first, then internal modules, followed by relative imports.
+- **Match**: `**/*.{js,jsx,ts,tsx}`
+- **Examples**:
+  - **Bad**:
+    ```javascript
+    import MyComponent from './MyComponent';
+    import React from 'react';
+    ```
+  - **Good**:
+    ```javascript
+    import React from 'react';
+    import MyComponent from './MyComponent';
+    ```
+
+---
+
+## Rule 8: Avoid Inline Styles
+- **Description**: Avoid using inline styles. Use CSS modules, styled-components, or Tailwind CSS instead.
+- **Match**: `**/*.{js,jsx,ts,tsx}`
+- **Examples**:
+  - **Bad**:
+    ```javascript
+    <div style={{ color: 'red' }}>Hello</div>;
+    ```
+  - **Good**:
+    ```javascript
+    <div className={styles.redText}>Hello</div>;
+    ```
+
+---
+
+## Rule 9: Use Environment Variables Securely
+- **Description**: Access environment variables using `process.env` and ensure sensitive data is not exposed in the client-side code.
+- **Match**: `**/*.{js,jsx,ts,tsx}`
+- **Examples**:
+  - **Bad**:
+    ```javascript
+    const apiKey = 'my-secret-key';
+    ```
+  - **Good**:
+    ```javascript
+    const apiKey = process.env.API_KEY;
+    ```
+
+---
+
+## Rule 10: Write Unit Tests
+- **Description**: Ensure that all components and utility functions have corresponding unit tests.
+- **Match**: `**/*.{js,jsx,ts,tsx}`
+- **Suggestion**: Write unit tests for this file using Jest and React Testing Library.
+
+---
+
+## Rule 11: Use Accessibility Best Practices
+- **Description**: Ensure that all components follow accessibility best practices, such as using semantic HTML and ARIA attributes.
+- **Match**: `**/*.{js,jsx,ts,tsx}`
+- **Examples**:
+  - **Bad**:
+    ```javascript
+    <div onClick={handleClick}>Click me</div>;
+    ```
+  - **Good**:
+    ```javascript
+    <button onClick={handleClick}>Click me</button>;
+    ```
+
+---
+
+## Rule 12: Optimize Images
+- **Description**: Use the Next.js `Image` component for optimized image loading.
+- **Match**: `**/*.{js,jsx,ts,tsx}`
+- **Examples**:
+  - **Bad**:
+    ```javascript
+    <img src="/image.png" alt="Example" />;
+    ```
+  - **Good**:
+    ```javascript
+    <Image src="/image.png" alt="Example" width={500} height={500} />;
+    ```
+
+---
+
+## Rule 13: Avoid Hardcoding URLs
+- **Description**: Do not hardcode URLs. Use environment variables or configuration files instead.
+- **Match**: `**/*.{js,jsx,ts,tsx}`
+- **Examples**:
+  - **Bad**:
+    ```javascript
+    const apiUrl = 'https://api.example.com';
+    ```
+  - **Good**:
+    ```javascript
+    const apiUrl = process.env.API_URL;
+    ```
+
+---
+
+## References
+- [Awesome CursorRules for Next.js and React](https://github.com/PatrickJS/awesome-cursorrules)
+- [Next.js Cursor Rules Gist](https://gist.github.com/VidhyaKumar/1cc0394307ca91ef1c757ce3d0e6e85b)
+- [CursorRules Templates Hub](https://www.cursorrules.org/)
