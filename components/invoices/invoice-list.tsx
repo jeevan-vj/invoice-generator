@@ -79,7 +79,7 @@ export default function InvoiceList({ viewMode, status }: InvoiceListProps) {
   }
 
   const handleEdit = (invoiceId: string) => {
-    router.push(`/dashboard/invoices/${invoiceId}`);
+    router.push(`/dashboard/invoices/edit?id=${invoiceId}`);
   }
 
   const handleDelete = async (invoiceId: string) => {
@@ -160,7 +160,7 @@ export default function InvoiceList({ viewMode, status }: InvoiceListProps) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => handleEdit(invoice.id!)}>
                     <Edit className="mr-2 h-4 w-4" />
-                    View Details
+                    Edit
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Send className="mr-2 h-4 w-4" />
@@ -256,7 +256,7 @@ export default function InvoiceList({ viewMode, status }: InvoiceListProps) {
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEdit(invoice.id!)}>
                         <Edit className="mr-2 h-4 w-4" />
-                        View Details
+                        Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem>
                         <Send className="mr-2 h-4 w-4" />

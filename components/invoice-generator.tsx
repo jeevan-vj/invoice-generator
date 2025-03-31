@@ -24,7 +24,7 @@ import { BrandedTemplate } from './invoice-templates/branded';
 import { ExecutiveTemplate } from './invoice-templates/executive';
 import { PremiumTemplate } from './invoice-templates/premium';
 import { useInvoices } from '@/lib/contexts/invoice-context';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { getInvoiceService } from '@/lib/services/invoice-service';
 import { Header } from '@/components/header';
 import { InvoiceAdjustments } from './invoice-adjustments';
@@ -59,11 +59,15 @@ const initialInvoiceData: InvoiceData = {
   taxRate: 0,
   adjustments: [],
   status: 'draft',
-  total: 0
+  total: 0,
+  payments: [],
+  remainingBalance: 0
 };
 
 export default function InvoiceGenerator() {
   const router = useRouter();
+  const pathname = usePathname();
+  const isDashboard = pathname?.startsWith('/dashboard');
   const { currentInvoice, saveInvoice, setCurrentInvoice, loading, error } =
     useInvoices();
   const searchParams = useSearchParams();
@@ -197,7 +201,7 @@ export default function InvoiceGenerator() {
 
   return (
     <>
-      <Header />
+      {!isDashboard && <Header />}
       <main className="min-h-screen bg-background">
         <Suspense fallback={<div>Loading...</div>}>
           <div className="container mx-auto p-8 space-y-8">
@@ -211,12 +215,14 @@ export default function InvoiceGenerator() {
               <article className="space-y-8">
                 <header>
                   <h1 className="text-3xl font-semibold text-foreground">
-                    Create your invoice
+                    {invoiceId ? 'Edit Invoice' : 'Create your invoice'}
                   </h1>
-                  <meta
-                    name="description"
-                    content="Generate a professional invoice instantly with our free online invoice generator"
-                  />
+                  {!invoiceId && (
+                    <meta
+                      name="description"
+                      content="Generate a professional invoice instantly with our free online invoice generator"
+                    />
+                  )}
                 </header>
 
                 <CompanyDetailsForm
