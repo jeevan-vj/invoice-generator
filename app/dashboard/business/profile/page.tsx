@@ -10,6 +10,8 @@ import { BusinessAddressForm } from "@/app/components/dashboard/business/busines
 import { BusinessTaxForm } from "@/app/components/dashboard/business/business-tax-form";
 import { BusinessLogoUpload } from "@/app/components/dashboard/business/business-logo-upload";
 import { useToast } from "@/components/ui/use-toast";
+import { MemoSettings } from "@/components/memo-settings";
+import { defaultMemoSettings } from "@/types/memo-settings";
 
 export default function BusinessProfilePage() {
   const [profile, setProfile] = useState<BusinessProfile | null>(null);
@@ -37,9 +39,25 @@ export default function BusinessProfilePage() {
 
   const handleUpdateProfile = async (data: Partial<BusinessProfile>) => {
     try {
+      if (data.memoSettings && profile) {
+        data.memoSettings = {
+          ...profile.memoSettings,
+          ...data.memoSettings
+        };
+      }
+      
       const updatedProfile = await businessProfileApi.updateProfile(data);
       setProfile(updatedProfile);
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
     } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
       throw error;
     }
   };
@@ -79,6 +97,7 @@ export default function BusinessProfilePage() {
           <TabsTrigger value="address">Address</TabsTrigger>
           <TabsTrigger value="tax">Tax Information</TabsTrigger>
           <TabsTrigger value="logo">Logo</TabsTrigger>
+          <TabsTrigger value="memo">Memo Settings</TabsTrigger>
         </TabsList>
 
         <TabsContent value="info">
@@ -132,6 +151,15 @@ export default function BusinessProfilePage() {
             onUpload={handleUploadLogo}
             onDelete={handleDeleteLogo}
             isLoading={isLoading}
+          />
+        </TabsContent>
+
+        <TabsContent value="memo">
+          <MemoSettings
+            settings={profile?.memoSettings || defaultMemoSettings}
+            onChange={async (settings) => {
+              await handleUpdateProfile({ memoSettings: settings });
+            }}
           />
         </TabsContent>
       </Tabs>

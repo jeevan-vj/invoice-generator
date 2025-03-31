@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,8 +36,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { InvoiceNumberConfig } from "@/types/invoice"
 import { InvoiceNumberConfig as InvoiceNumberConfigComponent } from "@/components/invoice-number-config"
 import { InvoiceNumberService } from "@/lib/services/invoice-number-service"
-import { businessProfileApi } from "@/app/api/mocks/business-profile";
-import { BusinessProfile } from "@/app/api/mocks/business-profile";
+import { businessProfileApi, BusinessProfile, BusinessProfileError } from '@/app/api/mocks/business-profile';
 import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
@@ -48,6 +47,7 @@ import {
 } from "@/components/ui/dialog"
 import { ClientPickerModal } from './client-picker-modal';
 import { Client } from '@/types/client';
+import { InvoiceItem } from '@/types/invoice';
 
 //const PDFDownloadLink = dynamic(() => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink), { ssr: false })
 //const InvoicePDF = dynamic(() => import('./components/invoice-pdf'), { ssr: false })
@@ -81,6 +81,17 @@ const initialInvoiceData: InvoiceData = {
   remainingBalance: 0
 };
 
+// Add proper type for form data
+interface InvoiceFormData {
+  sender: CompanyDetails;
+  recipient: CompanyDetails;
+  items: InvoiceItem[];
+  taxRate: number;
+  memo: string;
+  invoiceNumber: string;
+  dueDate: string;
+}
+
 export default function InvoiceGenerator() {
   const router = useRouter();
   const pathname = usePathname();
@@ -89,6 +100,30 @@ export default function InvoiceGenerator() {
     useInvoices();
   const searchParams = useSearchParams();
   const invoiceId = searchParams.get('id');
+
+  // Memoize the memo text replacement function
+  const replaceMemoVariables = useCallback((text: string, profile: BusinessProfile, invoiceNumber: string) => {
+    return text
+      .replace(/{companyName}/g, profile.companyName)
+      .replace(/{date}/g, new Date().toLocaleDateString())
+      .replace(/{invoiceNumber}/g, invoiceNumber);
+  }, []);
+
+  // Memoize the checkProfileChanges function
+  const checkProfileChanges = useCallback((sender: CompanyDetails, businessProfile: BusinessProfile | null) => {
+    if (!businessProfile) return false;
+    
+    return (
+      sender.firstName !== businessProfile.companyName ||
+      sender.email !== businessProfile.email ||
+      sender.phone !== businessProfile.phone ||
+      sender.address?.street !== businessProfile.address.street ||
+      sender.address?.city !== businessProfile.address.city ||
+      sender.address?.state !== businessProfile.address.state ||
+      sender.address?.zipCode !== businessProfile.address.postalCode ||
+      sender.address?.country !== businessProfile.address.country
+    );
+  }, []);
 
   const [invoiceData, setInvoiceData] =
     useState<InvoiceData>(initialInvoiceData);
@@ -174,48 +209,50 @@ export default function InvoiceGenerator() {
     setInvoiceNumberConfig(savedConfig)
   }, [])
 
-  // Load business profile on mount
+  // Load business profile on mount with proper error handling
   useEffect(() => {
     const loadBusinessProfile = async () => {
       try {
         const profile = await businessProfileApi.getProfile();
         setBusinessProfile(profile);
-        toast({
-          title: "Business Profile Loaded",
-          description: "Your business profile has been loaded successfully.",
-        });
+        
+        // Apply memo settings if enabled
+        if (profile.memoSettings.enabled && !invoiceId) {
+          const memoText = replaceMemoVariables(
+            profile.memoSettings.defaultText,
+            profile,
+            invoiceData.invoiceNumber
+          );
+            
+          setInvoiceData(prev => ({
+            ...prev,
+            memo: memoText
+          }));
+        }
       } catch (error) {
-        console.error('Failed to load business profile:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load business profile. Please try again.",
-          variant: "destructive",
-        });
+        if (error instanceof BusinessProfileError) {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          console.error('Failed to load business profile:', error);
+          toast({
+            title: "Error",
+            description: "Failed to load business profile. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
     };
     loadBusinessProfile();
-  }, []);
-
-  // Function to check if sender details differ from business profile
-  const checkProfileChanges = (sender: CompanyDetails) => {
-    if (!businessProfile) return false;
-    
-    return (
-      sender.firstName !== businessProfile.companyName ||
-      sender.email !== businessProfile.email ||
-      sender.phone !== businessProfile.phone ||
-      sender.address?.street !== businessProfile.address.street ||
-      sender.address?.city !== businessProfile.address.city ||
-      sender.address?.state !== businessProfile.address.state ||
-      sender.address?.zipCode !== businessProfile.address.postalCode ||
-      sender.address?.country !== businessProfile.address.country
-    );
-  };
+  }, [invoiceId, replaceMemoVariables]);
 
   // Update hasUnsavedProfileChanges when sender details change
   useEffect(() => {
-    setHasUnsavedProfileChanges(checkProfileChanges(invoiceData.sender));
-  }, [invoiceData.sender, businessProfile]);
+    setHasUnsavedProfileChanges(checkProfileChanges(invoiceData.sender, businessProfile));
+  }, [invoiceData.sender, businessProfile, checkProfileChanges]);
 
   const generatePDF = async () => {
     try {
@@ -276,28 +313,56 @@ export default function InvoiceGenerator() {
     }
   };
 
-  const handleUseBusinessProfile = () => {
-    if (!businessProfile) return;
-    
-    const senderDetails = {
-      firstName: businessProfile.companyName,
-      lastName: '',
-      email: businessProfile.email,
-      phone: businessProfile.phone,
-      address: {
-        street: businessProfile.address.street,
-        city: businessProfile.address.city,
-        state: businessProfile.address.state,
-        zipCode: businessProfile.address.postalCode,
-        country: businessProfile.address.country,
-      },
-    };
+  const handleUseBusinessProfile = async () => {
+    try {
+      if (!businessProfile) {
+        throw new BusinessProfileError("Business profile not found", "PROFILE_NOT_FOUND");
+      }
 
-    setInvoiceData(prev => ({ ...prev, sender: senderDetails }));
-    toast({
-      title: "Business Profile Applied",
-      description: "Your business profile details have been applied to the invoice.",
-    });
+      setInvoiceData(prev => ({
+        ...prev,
+        sender: {
+          ...prev.sender,
+          firstName: businessProfile.companyName,
+          email: businessProfile.email,
+          phone: businessProfile.phone,
+          address: {
+            street: businessProfile.address.street,
+            city: businessProfile.address.city,
+            state: businessProfile.address.state,
+            zipCode: businessProfile.address.postalCode,
+            country: businessProfile.address.country,
+          },
+          logo: businessProfile.logo,
+        },
+        taxRate: businessProfile.taxInfo.taxRate,
+      }));
+
+      setHasUnsavedProfileChanges(false);
+      
+      toast({
+        title: "Success",
+        description: "Business profile details applied successfully.",
+        duration: 3000,
+      });
+    } catch (error) {
+      if (error instanceof BusinessProfileError) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      } else {
+        console.error('Failed to apply business profile:', error);
+        toast({
+          title: "Error",
+          description: "Failed to apply business profile. Please try again.",
+          variant: "destructive",
+          duration: 3000,
+        });
+      }
+    }
   };
 
   const handleSaveAsBusinessProfile = async () => {
@@ -563,10 +628,28 @@ export default function InvoiceGenerator() {
 
                 <div className="grid grid-cols-2 gap-8">
                   <div className="space-y-2">
-                    <Label htmlFor="memo">Memo</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="memo">Memo</Label>
+                      {businessProfile?.memoSettings.enabled && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            let memoText = businessProfile.memoSettings.defaultText;
+                            memoText = memoText
+                              .replace(/{companyName}/g, businessProfile.companyName)
+                              .replace(/{date}/g, new Date().toLocaleDateString())
+                              .replace(/{invoiceNumber}/g, invoiceData.invoiceNumber);
+                            setInvoiceData(prev => ({ ...prev, memo: memoText }));
+                          }}
+                        >
+                          Reset to Default
+                        </Button>
+                      )}
+                    </div>
                     <Textarea
                       id="memo"
-                      placeholder="Additional notes..."
+                      placeholder={businessProfile?.memoSettings.placeholder || "Additional notes..."}
                       value={invoiceData.memo}
                       onChange={(e) =>
                         setInvoiceData({ ...invoiceData, memo: e.target.value })

@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BusinessProfile, businessProfileSchema } from "@/app/api/mocks/business-profile";
+import { BusinessProfile } from "@/app/api/mocks/business-profile";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { z } from "zod";
 
 interface BusinessInfoFormProps {
   profile: BusinessProfile | null;
@@ -20,14 +21,22 @@ interface BusinessInfoFormProps {
   isLoading?: boolean;
 }
 
-type FormData = Pick<BusinessProfile, "companyName" | "email" | "phone" | "website">;
+// Create a specific schema for the form data
+const businessInfoSchema = z.object({
+  companyName: z.string().min(1, "Company name is required"),
+  email: z.string().email("Invalid email format"),
+  phone: z.string().regex(/^\+?[\d\s-()]{10,}$/, "Invalid phone number format"),
+  website: z.string().url("Invalid website URL").optional(),
+});
+
+type FormData = z.infer<typeof businessInfoSchema>;
 
 export function BusinessInfoForm({ profile, onUpdate, isLoading = false }: BusinessInfoFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormData>({
-    resolver: zodResolver(businessProfileSchema),
+    resolver: zodResolver(businessInfoSchema),
     defaultValues: {
       companyName: profile?.companyName ?? "",
       email: profile?.email ?? "",
@@ -36,7 +45,7 @@ export function BusinessInfoForm({ profile, onUpdate, isLoading = false }: Busin
     },
   });
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = useCallback(async (data: FormData) => {
     try {
       setIsSubmitting(true);
       await onUpdate(data);
@@ -45,19 +54,27 @@ export function BusinessInfoForm({ profile, onUpdate, isLoading = false }: Busin
         description: "Business information updated successfully.",
       });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update business information. Please try again.",
-        variant: "destructive",
-      });
+      if (error instanceof Error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update business information. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [onUpdate, toast]);
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="companyName"
@@ -65,13 +82,12 @@ export function BusinessInfoForm({ profile, onUpdate, isLoading = false }: Busin
             <FormItem>
               <FormLabel>Company Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter company name" {...field} />
+                <Input {...field} disabled={isLoading || isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="email"
@@ -79,13 +95,12 @@ export function BusinessInfoForm({ profile, onUpdate, isLoading = false }: Busin
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="Enter email address" {...field} />
+                <Input {...field} type="email" disabled={isLoading || isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="phone"
@@ -93,27 +108,25 @@ export function BusinessInfoForm({ profile, onUpdate, isLoading = false }: Busin
             <FormItem>
               <FormLabel>Phone</FormLabel>
               <FormControl>
-                <Input type="tel" placeholder="Enter phone number" {...field} />
+                <Input {...field} type="tel" disabled={isLoading || isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="website"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Website (Optional)</FormLabel>
+              <FormLabel>Website</FormLabel>
               <FormControl>
-                <Input type="url" placeholder="Enter website URL" {...field} />
+                <Input {...field} type="url" disabled={isLoading || isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
         <Button type="submit" disabled={isLoading || isSubmitting}>
           {isSubmitting ? "Saving..." : "Save Changes"}
         </Button>
