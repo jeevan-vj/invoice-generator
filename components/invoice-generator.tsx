@@ -46,6 +46,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { ClientPickerModal } from './client-picker-modal';
+import { Client } from '@/types/client';
 
 //const PDFDownloadLink = dynamic(() => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink), { ssr: false })
 //const InvoicePDF = dynamic(() => import('./components/invoice-pdf'), { ssr: false })
@@ -438,15 +440,35 @@ export default function InvoiceGenerator() {
                   />
                 </div>
 
-                <CompanyDetailsForm
-                  title="Client Details"
-                  data={invoiceData.client}
-                  onChange={(client) =>
-                    setInvoiceData({ ...invoiceData, client })
-                  }
-                  isBusinessProfile={false}
-                  showBusinessProfileIndicator={false}
-                />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-medium">Client Details</h2>
+                    <ClientPickerModal
+                      onClientSelect={(client: Client) => {
+                        setInvoiceData(prev => ({
+                          ...prev,
+                          client: {
+                            firstName: client.firstName,
+                            lastName: client.lastName,
+                            email: client.email,
+                            phone: client.phone,
+                            address: client.address,
+                            companyName: client.companyName
+                          }
+                        }));
+                      }}
+                    />
+                  </div>
+                  <CompanyDetailsForm
+                    title="Client Details"
+                    data={invoiceData.client}
+                    onChange={(client) =>
+                      setInvoiceData({ ...invoiceData, client })
+                    }
+                    isBusinessProfile={false}
+                    showBusinessProfileIndicator={false}
+                  />
+                </div>
 
                 <section className="space-y-4" aria-label="Invoice Information">
                   <h2 className="text-lg font-medium">Invoice info</h2>
