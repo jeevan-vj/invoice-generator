@@ -34,12 +34,15 @@ export interface CompanyDetails extends Sender {
   logo?: string;
 }
 
-export interface InvoiceAdjustment {
-  id: string;
-  type: 'addition' | 'deduction';
+export type InvoiceAdjustment = {
+  type: 'discount' | 'tax' | 'shipping' | 'fee' | 'other';
   description: string;
-  amount: number;
+  value: number;
   isPercentage: boolean;
+};
+
+export interface Adjustment extends InvoiceAdjustment {
+  value: number;
 }
 
 export interface Payment {
@@ -48,11 +51,6 @@ export interface Payment {
   date: string;
   method: 'cash' | 'bank_transfer' | 'credit_card' | 'other';
   notes?: string;
-}
-
-export interface Adjustment {
-  description: string;
-  amount: number;
 }
 
 export interface InvoiceData {

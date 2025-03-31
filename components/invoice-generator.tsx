@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CompanyDetailsForm } from './company-details-form';
 import { InvoiceItems } from './invoice-items';
 import { InvoicePreview } from './invoice-preview';
-import { InvoiceData, CompanyDetails } from '../types/invoice';
+import { InvoiceData, CompanyDetails, Theme } from '../types/invoice';
 import {
   BanknoteIcon as Bank,
   CreditCard,
@@ -48,6 +48,11 @@ import {
 import { ClientPickerModal } from './client-picker-modal';
 import { Client } from '@/types/client';
 import { InvoiceItem } from '@/types/invoice';
+import { useFormHistory } from '@/hooks/use-form-history';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
+import { PreviewControls } from '@/components/preview-controls';
+import { useTheme } from 'next-themes';
 
 //const PDFDownloadLink = dynamic(() => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink), { ssr: false })
 //const InvoicePDF = dynamic(() => import('./components/invoice-pdf'), { ssr: false })
@@ -100,43 +105,20 @@ export default function InvoiceGenerator() {
     useInvoices();
   const searchParams = useSearchParams();
   const invoiceId = searchParams.get('id');
-
-  // Memoize the memo text replacement function
-  const replaceMemoVariables = useCallback((text: string, profile: BusinessProfile, invoiceNumber: string) => {
-    return text
-      .replace(/{companyName}/g, profile.companyName)
-      .replace(/{date}/g, new Date().toLocaleDateString())
-      .replace(/{invoiceNumber}/g, invoiceNumber);
-  }, []);
-
-  // Memoize the checkProfileChanges function
-  const checkProfileChanges = useCallback((sender: CompanyDetails, businessProfile: BusinessProfile | null) => {
-    if (!businessProfile) return false;
-    
-    return (
-      sender.firstName !== businessProfile.companyName ||
-      sender.email !== businessProfile.email ||
-      sender.phone !== businessProfile.phone ||
-      sender.address?.street !== businessProfile.address.street ||
-      sender.address?.city !== businessProfile.address.city ||
-      sender.address?.state !== businessProfile.address.state ||
-      sender.address?.zipCode !== businessProfile.address.postalCode ||
-      sender.address?.country !== businessProfile.address.country
-    );
-  }, []);
-
-  const [invoiceData, setInvoiceData] =
-    useState<InvoiceData>(initialInvoiceData);
-  const [selectedTemplate, setSelectedTemplate] =
-    useState<TemplateOption>('classic');
-  const [isPDFReady, setIsPDFReady] = useState(false);
   const invoiceRef = useRef<HTMLDivElement>(null);
-  const [theme, setTheme] = useState({
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const { theme: currentTheme = 'light' } = useTheme() as { theme: 'light' | 'dark' };
+
+  // State declarations
+  const [invoiceData, setInvoiceData] = useState<InvoiceData>(initialInvoiceData);
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateOption>('classic');
+  const [isPDFReady, setIsPDFReady] = useState(false);
+  const [theme, setTheme] = useState<Theme>({
     primary: '#0066cc',
     secondary: '#4d4d4d',
   });
   const [isLoading, setIsLoading] = useState(false);
-  const { user } = useAuth();
   const [invoiceNumberConfig, setInvoiceNumberConfig] = useState<InvoiceNumberConfig>({
     format: "dd-mm-nn",
     prefix: "INV-",
@@ -146,114 +128,13 @@ export default function InvoiceGenerator() {
     includeYear: true,
     includeMonth: true,
     separator: "-"
-  })
+  });
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
-  const { toast } = useToast();
   const [hasUnsavedProfileChanges, setHasUnsavedProfileChanges] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const [previewDevice, setPreviewDevice] = useState<'mobile' | 'desktop'>('desktop');
 
-  // Sync invoiceData with currentInvoice when it changes
-  useEffect(() => {
-    if (currentInvoice) {
-      setInvoiceData(currentInvoice);
-    }
-  }, [currentInvoice]);
-
-  useEffect(() => {
-    const loadInvoice = async () => {
-      if (!invoiceId) return;
-
-      setIsLoading(true);
-      try {
-        const service = getInvoiceService();
-        const response = await service.getInvoice(invoiceId);
-
-        if (response.error) {
-          throw new Error(response.error);
-        }
-
-        if (response.data) {
-          const invoiceData = {
-            ...response.data,
-            adjustments: response.data.adjustments || [],
-          };
-          setInvoiceData(invoiceData);
-          setCurrentInvoice(response.data);
-        }
-      } catch (error) {
-        console.error('Failed to load invoice:', error);
-        // Show error toast or notification here
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadInvoice();
-  }, [invoiceId, setCurrentInvoice]);
-
-  useEffect(() => {
-    setIsPDFReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (!invoiceId) {
-      const service = InvoiceNumberService.getInstance()
-      const nextNumber = service.generateNextNumber()
-      setInvoiceData(prev => ({ ...prev, invoiceNumber: nextNumber }))
-    }
-  }, [invoiceId])
-
-  useEffect(() => {
-    // Load settings from service
-    const service = InvoiceNumberService.getInstance()
-    const savedConfig = service.getConfig()
-    setInvoiceNumberConfig(savedConfig)
-  }, [])
-
-  // Load business profile on mount with proper error handling
-  useEffect(() => {
-    const loadBusinessProfile = async () => {
-      try {
-        const profile = await businessProfileApi.getProfile();
-        setBusinessProfile(profile);
-        
-        // Apply memo settings if enabled
-        if (profile.memoSettings.enabled && !invoiceId) {
-          const memoText = replaceMemoVariables(
-            profile.memoSettings.defaultText,
-            profile,
-            invoiceData.invoiceNumber
-          );
-            
-          setInvoiceData(prev => ({
-            ...prev,
-            memo: memoText
-          }));
-        }
-      } catch (error) {
-        if (error instanceof BusinessProfileError) {
-          toast({
-            title: "Error",
-            description: error.message,
-            variant: "destructive",
-          });
-        } else {
-          console.error('Failed to load business profile:', error);
-          toast({
-            title: "Error",
-            description: "Failed to load business profile. Please try again.",
-            variant: "destructive",
-          });
-        }
-      }
-    };
-    loadBusinessProfile();
-  }, [invoiceId, replaceMemoVariables]);
-
-  // Update hasUnsavedProfileChanges when sender details change
-  useEffect(() => {
-    setHasUnsavedProfileChanges(checkProfileChanges(invoiceData.sender, businessProfile));
-  }, [invoiceData.sender, businessProfile, checkProfileChanges]);
-
+  // Function declarations
   const generatePDF = async () => {
     try {
       if (!invoiceRef.current || !invoiceData) return;
@@ -282,36 +163,15 @@ export default function InvoiceGenerator() {
     }
   };
 
-  const renderTemplate = () => {
-    switch (selectedTemplate) {
-      case 'modern':
-        return <ModernTemplate data={invoiceData} theme={theme} />;
-      case 'minimal':
-        return <MinimalTemplate data={invoiceData} theme={theme} />;
-      case 'corporate':
-        return <PremiumTemplate data={invoiceData} theme={theme} />;
-      case 'branded':
-        return <BrandedTemplate data={invoiceData} theme={theme} />;
-      case 'executive':
-        return <ExecutiveTemplate data={invoiceData} theme={theme} />;
-      case 'professional':
-        return <ProfessionalTemplate data={invoiceData} theme={theme} />;
-      default:
-        return <InvoicePreview data={invoiceData} theme={theme} />;
-    }
-  };
-
   const handleSave = async () => {
     try {
       if (!invoiceData.pdfUrl) {
         await generatePDF();
       }
       await saveInvoice(invoiceData);
-      // Navigate to invoices list after successful save
       router.push('/dashboard/invoices');
     } catch (err) {
       console.error('Failed to save invoice:', err);
-      // Show error toast or notification here
     }
   };
 
@@ -417,6 +277,195 @@ export default function InvoiceGenerator() {
       });
     }
   };
+
+  const renderTemplate = () => {
+    switch (selectedTemplate) {
+      case 'modern':
+        return <ModernTemplate data={invoiceData} theme={theme} />;
+      case 'minimal':
+        return <MinimalTemplate data={invoiceData} theme={theme} />;
+      case 'corporate':
+        return <PremiumTemplate data={invoiceData} theme={theme} />;
+      case 'branded':
+        return <BrandedTemplate data={invoiceData} theme={theme} />;
+      case 'executive':
+        return <ExecutiveTemplate data={invoiceData} theme={theme} />;
+      case 'professional':
+        return <ProfessionalTemplate data={invoiceData} theme={theme} />;
+      default:
+        return <InvoicePreview data={invoiceData} theme={theme} />;
+    }
+  };
+
+  // Memoized functions
+  const replaceMemoVariables = useCallback((text: string, profile: BusinessProfile, invoiceNumber: string) => {
+    return text
+      .replace(/{companyName}/g, profile.companyName)
+      .replace(/{date}/g, new Date().toLocaleDateString())
+      .replace(/{invoiceNumber}/g, invoiceNumber);
+  }, []);
+
+  const checkProfileChanges = useCallback((sender: CompanyDetails | undefined, businessProfile: BusinessProfile | null) => {
+    if (!businessProfile || !sender) return false;
+    
+    return (
+      sender.firstName !== businessProfile.companyName ||
+      sender.email !== businessProfile.email ||
+      sender.phone !== businessProfile.phone ||
+      sender.address?.street !== businessProfile.address.street ||
+      sender.address?.city !== businessProfile.address.city ||
+      sender.address?.state !== businessProfile.address.state ||
+      sender.address?.zipCode !== businessProfile.address.postalCode ||
+      sender.address?.country !== businessProfile.address.country
+    );
+  }, []);
+
+  // Hooks
+  const {
+    currentState,
+    pushState,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+  } = useFormHistory(initialInvoiceData);
+
+  useAutoSave(invoiceData, {
+    onSave: async (data) => {
+      if (!invoiceId) return;
+      await saveInvoice(data);
+    },
+  });
+
+  useKeyboardShortcuts({
+    onUndo: undo,
+    onRedo: redo,
+    onSave: handleSave,
+    onPreview: () => setPreviewDevice((prev: 'mobile' | 'desktop') => prev === 'mobile' ? 'desktop' : 'mobile'),
+    onPrint: generatePDF,
+  });
+
+  // Update invoice data when history changes
+  useEffect(() => {
+    if (JSON.stringify(currentState) !== JSON.stringify(invoiceData)) {
+      setInvoiceData(currentState);
+    }
+  }, [currentState]);
+
+  // Push new state to history when invoice data changes
+  useEffect(() => {
+    if (JSON.stringify(invoiceData) !== JSON.stringify(currentState)) {
+      pushState(invoiceData);
+    }
+  }, [invoiceData, pushState, currentState]);
+
+  // Sync invoiceData with currentInvoice when it changes
+  useEffect(() => {
+    if (currentInvoice && JSON.stringify(currentInvoice) !== JSON.stringify(invoiceData)) {
+      setInvoiceData(currentInvoice);
+    }
+  }, [currentInvoice]);
+
+  useEffect(() => {
+    const loadInvoice = async () => {
+      if (!invoiceId) return;
+
+      setIsLoading(true);
+      try {
+        const service = getInvoiceService();
+        const response = await service.getInvoice(invoiceId);
+
+        if (response.error) {
+          throw new Error(response.error);
+        }
+
+        if (response.data) {
+          const invoiceData = {
+            ...response.data,
+            adjustments: response.data.adjustments || [],
+          };
+          setInvoiceData(invoiceData);
+          setCurrentInvoice(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to load invoice:', error);
+        // Show error toast or notification here
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadInvoice();
+  }, [invoiceId, setCurrentInvoice]);
+
+  useEffect(() => {
+    setIsPDFReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!invoiceId) {
+      const service = InvoiceNumberService.getInstance()
+      const nextNumber = service.generateNextNumber()
+      setInvoiceData(prev => ({ ...prev, invoiceNumber: nextNumber }))
+    }
+  }, [invoiceId])
+
+  useEffect(() => {
+    // Load settings from service
+    const service = InvoiceNumberService.getInstance()
+    const savedConfig = service.getConfig()
+    setInvoiceNumberConfig(savedConfig)
+  }, [])
+
+  // Load business profile on mount with proper error handling
+  useEffect(() => {
+    const loadBusinessProfile = async () => {
+      try {
+        const profile = await businessProfileApi.getProfile();
+        setBusinessProfile(profile);
+        
+        // Apply memo settings if enabled
+        if (profile.memoSettings.enabled && !invoiceId) {
+          const memoText = replaceMemoVariables(
+            profile.memoSettings.defaultText,
+            profile,
+            invoiceData.invoiceNumber
+          );
+            
+          setInvoiceData(prev => ({
+            ...prev,
+            memo: memoText
+          }));
+        }
+      } catch (error) {
+        if (error instanceof BusinessProfileError) {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          console.error('Failed to load business profile:', error);
+          toast({
+            title: "Error",
+            description: "Failed to load business profile. Please try again.",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+    loadBusinessProfile();
+  }, [invoiceId, replaceMemoVariables]);
+
+  // Update hasUnsavedProfileChanges when sender details change
+  useEffect(() => {
+    if (invoiceData?.sender) {
+      const hasChanges = checkProfileChanges(invoiceData.sender, businessProfile);
+      if (hasChanges !== hasUnsavedProfileChanges) {
+        setHasUnsavedProfileChanges(hasChanges);
+      }
+    }
+  }, [invoiceData?.sender, businessProfile, checkProfileChanges, hasUnsavedProfileChanges]);
 
   if (isLoading) {
     return (
@@ -678,7 +727,22 @@ export default function InvoiceGenerator() {
                 </div>
               </article>
               <aside className="space-y-4 lg:sticky lg:top-8">
-                <div className="overflow-hidden print:shadow-none max-w-full overflow-x-auto" ref={invoiceRef}>
+                <PreviewControls
+                  onZoomIn={() => setZoom(prev => Math.min(prev + 0.1, 2))}
+                  onZoomOut={() => setZoom(prev => Math.max(prev - 0.1, 0.5))}
+                  onPrint={generatePDF}
+                  onDeviceChange={setPreviewDevice}
+                  currentDevice={previewDevice}
+                  zoom={zoom}
+                  onZoomChange={setZoom}
+                />
+                <div 
+                  className={`overflow-hidden print:shadow-none max-w-full overflow-x-auto ${
+                    previewDevice === 'mobile' ? 'max-w-[375px] mx-auto' : ''
+                  }`}
+                  style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}
+                  ref={invoiceRef}
+                >
                   {renderTemplate()}
                 </div>
 
