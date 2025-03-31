@@ -432,17 +432,17 @@ export default function InvoiceGenerator() {
       {!isDashboard && <Header />}
       <main className="min-h-screen bg-background">
         <Suspense fallback={<div>Loading...</div>}>
-          <div className="container mx-auto p-8 space-y-8">
+          <div className="container mx-auto p-4 md:p-8 space-y-4 md:space-y-8">
             <TemplateSelector
               selected={selectedTemplate}
               onSelect={setSelectedTemplate}
               theme={theme}
               onThemeChange={setTheme}
             />
-            <div className="grid gap-8 lg:grid-cols-2">
-              <article className="space-y-8">
+            <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
+              <article className="space-y-4 md:space-y-8">
                 <header>
-                  <h1 className="text-3xl font-semibold text-foreground">
+                  <h1 className="text-2xl md:text-3xl font-semibold text-foreground">
                     {invoiceId ? 'Edit Invoice' : 'Create your invoice'}
                   </h1>
                   {!invoiceId && (
@@ -454,7 +454,7 @@ export default function InvoiceGenerator() {
                 </header>
 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <h2 className="text-lg font-medium">Your info</h2>
                     <div className="flex gap-2">
                       {businessProfile ? (
@@ -506,7 +506,7 @@ export default function InvoiceGenerator() {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <h2 className="text-lg font-medium">Client Details</h2>
                     <ClientPickerModal
                       onClientSelect={(client: Client) => {
@@ -537,7 +537,7 @@ export default function InvoiceGenerator() {
 
                 <section className="space-y-4" aria-label="Invoice Information">
                   <h2 className="text-lg font-medium">Invoice info</h2>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Label htmlFor="invoice-number">Invoice #</Label>
@@ -626,7 +626,7 @@ export default function InvoiceGenerator() {
                   />
                 </section>
 
-                <div className="grid grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="memo">Memo</Label>
@@ -675,12 +675,12 @@ export default function InvoiceGenerator() {
                   </div>
                 </div>
               </article>
-              <aside className="space-y-4">
-                <div className="overflow-hidden print:shadow-none" ref={invoiceRef}>
+              <aside className="space-y-4 lg:sticky lg:top-8">
+                <div className="overflow-hidden print:shadow-none max-w-full overflow-x-auto" ref={invoiceRef}>
                   {renderTemplate()}
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <Button
                     className="flex-1 bg-primary"
                     size="lg"
@@ -718,18 +718,18 @@ export default function InvoiceGenerator() {
           </div>
         </Suspense>
       </main>
-      <div className="fixed top-4 right-4">
+      <div className="fixed top-4 right-4 z-50">
         {user ? (
           <Link
             href="/dashboard"
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="px-3 py-2 md:px-4 md:py-2 bg-blue-500 text-white text-sm md:text-base rounded hover:bg-blue-600 transition-colors"
           >
             Dashboard
           </Link>
         ) : (
           <Link
             href="/auth/sign-in"
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="px-3 py-2 md:px-4 md:py-2 bg-blue-500 text-white text-sm md:text-base rounded hover:bg-blue-600 transition-colors"
           >
             Sign In
           </Link>
