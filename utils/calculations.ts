@@ -1,7 +1,7 @@
-import { InvoiceItem, InvoiceAdjustment, InvoiceData } from "../types/invoice"
+import { InvoiceItem, InvoiceAdjustment, InvoiceData, Adjustment } from "../types/invoice"
 
 export const calculateSubtotal = (items: InvoiceItem[]): number => {
-  return items.reduce((sum, item) => sum + item.quantity * item.price, 0)
+  return items.reduce((sum, item) => sum + (item.quantity * item.price), 0)
 }
 
 export const calculateTax = (subtotal: number, taxRate: number): number => {
@@ -25,10 +25,9 @@ export const calculateAdjustments = (
   }, 0);
 };
 
-export const calculateTotal = (data: InvoiceData): number => {
-  const subtotal = calculateSubtotal(data.items);
-  const tax = calculateTax(subtotal, data.taxRate);
-  const adjustmentsTotal = calculateAdjustments(subtotal, data.adjustments);
-  return subtotal + tax + adjustmentsTotal;
+export const calculateTotal = (subtotal: number, taxRate: number, adjustments: Adjustment[]): number => {
+  const taxAmount = (subtotal * taxRate) / 100;
+  const adjustmentsTotal = adjustments.reduce((sum, adj) => sum + adj.amount, 0);
+  return subtotal + taxAmount + adjustmentsTotal;
 };
 

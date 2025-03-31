@@ -3,6 +3,7 @@ export interface InvoiceItem {
   description: string
   quantity: number
   price: number
+  rate?: number
 }
 
 export interface Address {
@@ -49,6 +50,11 @@ export interface Payment {
   notes?: string;
 }
 
+export interface Adjustment {
+  description: string;
+  amount: number;
+}
+
 export interface InvoiceData {
   id?: string;
   sender: CompanyDetails
@@ -60,7 +66,7 @@ export interface InvoiceData {
   memo?: string
   taxRate: number
   pdfUrl?: string
-  adjustments: InvoiceAdjustment[]
+  adjustments: Adjustment[]
   status: 'draft' | 'sent' | 'partial' | 'paid' | 'overdue'
   total: number
   payments: Payment[]

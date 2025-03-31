@@ -21,10 +21,10 @@ import jsPDF from 'jspdf';
 import { TemplateSelector, TemplateOption } from './template-selector';
 import { ModernTemplate } from './invoice-templates/modern';
 import { MinimalTemplate } from './invoice-templates/minimal';
-
 import { BrandedTemplate } from './invoice-templates/branded';
 import { ExecutiveTemplate } from './invoice-templates/executive';
 import { PremiumTemplate } from './invoice-templates/premium';
+import { ProfessionalTemplate } from './invoice-templates/professional';
 import { useInvoices } from '@/lib/contexts/invoice-context';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { getInvoiceService } from '@/lib/services/invoice-service';
@@ -294,6 +294,8 @@ export default function InvoiceGenerator() {
         return <BrandedTemplate data={invoiceData} theme={theme} />;
       case 'executive':
         return <ExecutiveTemplate data={invoiceData} theme={theme} />;
+      case 'professional':
+        return <ProfessionalTemplate data={invoiceData} theme={theme} />;
       default:
         return <InvoicePreview data={invoiceData} theme={theme} />;
     }
