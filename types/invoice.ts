@@ -77,3 +77,14 @@ export interface TemplateProps {
   theme: Theme;
 }
 
+export interface InvoiceNumberConfig {
+  format: string
+  prefix: string
+  suffix: string
+  startNumber: number
+  padding: number
+  includeYear: boolean
+  includeMonth: boolean
+  separator: string
+}
+

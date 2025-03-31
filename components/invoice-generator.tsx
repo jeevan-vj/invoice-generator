@@ -14,6 +14,7 @@ import {
   BanknoteIcon as Bank,
   CreditCard,
   ShoppingCartIcon as Paypal,
+  Settings2,
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { TemplateSelector, TemplateOption } from './template-selector';
@@ -31,6 +32,16 @@ import { InvoiceAdjustments } from './invoice-adjustments';
 import { calculateSubtotal } from '@/utils/calculations';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
+import { InvoiceNumberConfig } from "@/types/invoice"
+import { InvoiceNumberConfig as InvoiceNumberConfigComponent } from "@/components/invoice-number-config"
+import { InvoiceNumberService } from "@/lib/services/invoice-number-service"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 //const PDFDownloadLink = dynamic(() => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink), { ssr: false })
 //const InvoicePDF = dynamic(() => import('./components/invoice-pdf'), { ssr: false })
@@ -85,6 +96,16 @@ export default function InvoiceGenerator() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
+  const [invoiceNumberConfig, setInvoiceNumberConfig] = useState<InvoiceNumberConfig>({
+    format: "dd-mm-nn",
+    prefix: "INV-",
+    suffix: "",
+    startNumber: 1,
+    padding: 3,
+    includeYear: true,
+    includeMonth: true,
+    separator: "-"
+  })
 
   // Sync invoiceData with currentInvoice when it changes
   useEffect(() => {
@@ -128,6 +149,21 @@ export default function InvoiceGenerator() {
   useEffect(() => {
     setIsPDFReady(true);
   }, []);
+
+  useEffect(() => {
+    if (!invoiceId) {
+      const service = InvoiceNumberService.getInstance()
+      const nextNumber = service.generateNextNumber()
+      setInvoiceData(prev => ({ ...prev, invoiceNumber: nextNumber }))
+    }
+  }, [invoiceId])
+
+  useEffect(() => {
+    // Load settings from service
+    const service = InvoiceNumberService.getInstance()
+    const savedConfig = service.getConfig()
+    setInvoiceNumberConfig(savedConfig)
+  }, [])
 
   const generatePDF = async () => {
     try {
@@ -245,7 +281,33 @@ export default function InvoiceGenerator() {
                   <h2 className="text-lg font-medium">Invoice info</h2>
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="invoice-number">Invoice #</Label>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="invoice-number">Invoice #</Label>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6">
+                              <Settings2 className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Invoice Number Settings</DialogTitle>
+                            </DialogHeader>
+                            <div className="py-4">
+                              <p className="text-sm text-muted-foreground mb-4">
+                                Invoice number settings are managed globally in your business settings.
+                                Click below to configure your invoice number format.
+                              </p>
+                              <Button
+                                onClick={() => router.push("/dashboard/settings")}
+                                className="w-full"
+                              >
+                                Go to Settings
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                       <Input
                         id="invoice-number"
                         value={invoiceData.invoiceNumber}
