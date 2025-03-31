@@ -1,8 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { MoreHorizontal, FileText, Download, Send, Edit, Trash2 } from "lucide-react"
+import { MoreHorizontal, FileText, Download, Send, Edit, Trash2, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +30,7 @@ interface InvoiceListProps {
 
 export default function InvoiceList({ viewMode, status }: InvoiceListProps) {
   const router = useRouter()
-  const { invoices, deleteInvoice } = useInvoices()
+  const { invoices, deleteInvoice, saveInvoice } = useInvoices()
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([])
 
   const filteredInvoices = status ? invoices.filter(inv => inv.status === status) : invoices
@@ -72,7 +79,7 @@ export default function InvoiceList({ viewMode, status }: InvoiceListProps) {
   }
 
   const handleEdit = (invoiceId: string) => {
-    router.push(`/invoices/edit?id=${invoiceId}`)
+    router.push(`/dashboard/invoices/${invoiceId}`);
   }
 
   const handleDelete = async (invoiceId: string) => {
@@ -80,6 +87,33 @@ export default function InvoiceList({ viewMode, status }: InvoiceListProps) {
       await deleteInvoice(invoiceId)
     }
   }
+
+  const handleTogglePaid = async (invoice: InvoiceData) => {
+    const newStatus = invoice.status === "paid" ? "sent" : "paid"
+    await saveInvoice({ ...invoice, status: newStatus })
+  }
+
+  const PaidStatusToggle = ({ invoice }: { invoice: InvoiceData }) => (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={invoice.status === "paid"}
+              onCheckedChange={() => handleTogglePaid(invoice)}
+              className="data-[state=checked]:bg-green-600"
+            />
+            <Badge className={getStatusColor(invoice.status)}>
+              {formatStatus(invoice.status)}
+            </Badge>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Click to mark as {invoice.status === "paid" ? "unpaid" : "paid"}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
 
   if (viewMode === "grid") {
     return (
@@ -94,9 +128,7 @@ export default function InvoiceList({ viewMode, status }: InvoiceListProps) {
                 <h3 className="font-medium text-gray-900 dark:text-white">{invoice.invoiceNumber}</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{invoice.client.firstName} {invoice.client.lastName}</p>
               </div>
-              <Badge className={getStatusColor(invoice.status)}>
-                {formatStatus(invoice.status)}
-              </Badge>
+              <PaidStatusToggle invoice={invoice} />
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
@@ -128,7 +160,7 @@ export default function InvoiceList({ viewMode, status }: InvoiceListProps) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => handleEdit(invoice.id!)}>
                     <Edit className="mr-2 h-4 w-4" />
-                    Edit
+                    View Details
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Send className="mr-2 h-4 w-4" />
@@ -212,9 +244,7 @@ export default function InvoiceList({ viewMode, status }: InvoiceListProps) {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge className={getStatusColor(invoice.status)}>
-                    {formatStatus(invoice.status)}
-                  </Badge>
+                  <PaidStatusToggle invoice={invoice} />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   <DropdownMenu>
@@ -226,7 +256,7 @@ export default function InvoiceList({ viewMode, status }: InvoiceListProps) {
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEdit(invoice.id!)}>
                         <Edit className="mr-2 h-4 w-4" />
-                        Edit
+                        View Details
                       </DropdownMenuItem>
                       <DropdownMenuItem>
                         <Send className="mr-2 h-4 w-4" />

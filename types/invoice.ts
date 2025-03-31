@@ -41,6 +41,14 @@ export interface InvoiceAdjustment {
   isPercentage: boolean;
 }
 
+export interface Payment {
+  id: string;
+  amount: number;
+  date: string;
+  method: 'cash' | 'bank_transfer' | 'credit_card' | 'other';
+  notes?: string;
+}
+
 export interface InvoiceData {
   id?: string;
   sender: CompanyDetails
@@ -53,8 +61,10 @@ export interface InvoiceData {
   taxRate: number
   pdfUrl?: string
   adjustments: InvoiceAdjustment[]
-  status: 'draft' | 'sent' | 'paid' | 'overdue'
+  status: 'draft' | 'sent' | 'partial' | 'paid' | 'overdue'
   total: number
+  payments: Payment[]
+  remainingBalance: number
 }
 
 export interface Theme {

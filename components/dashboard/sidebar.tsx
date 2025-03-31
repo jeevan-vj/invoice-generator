@@ -165,7 +165,7 @@ export default function Sidebar() {
                   <NavItem href="/business/settings" icon={Settings}>
                     Settings
                   </NavItem>
-                  <NavItem href="/business/templates" icon={FileText}>
+                  <NavItem href="/dashboard/templates" icon={FileText}>
                     Invoice Templates
                   </NavItem>
                 </div>

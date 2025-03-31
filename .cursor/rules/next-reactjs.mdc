@@ -10,7 +10,7 @@ alwaysApply: true
 - **Match**: `**/*.{js,jsx}`
 - **Suggestion**: Convert this file to TypeScript (`.ts` or `.tsx`) and add appropriate type annotations.
 - **References**:
-  - [Awesome CursorRules for Next.js and React](https://github.com/PatrickJS/awesome-cursorrules)
+  - [Awesome CursorRules for Next.js and React](mdc:https:/github.com/PatrickJS/awesome-cursorrules)
 
 ---
 
@@ -21,7 +21,7 @@ alwaysApply: true
   - **Bad**: Fetch data directly in a React component using `fetch`.
   - **Good**: Use `getStaticProps` or `getServerSideProps` for data fetching in Next.js.
 - **References**:
-  - [Next.js Cursor Rules](https://gist.github.com/VidhyaKumar/1cc0394307ca91ef1c757ce3d0e6e85b)
+  - [Next.js Cursor Rules](mdc:https:/gist.github.com/VidhyaKumar/1cc0394307ca91ef1c757ce3d0e6e85b)
 
 ---
 
@@ -183,6 +183,6 @@ alwaysApply: true
 ---
 
 ## References
-- [Awesome CursorRules for Next.js and React](https://github.com/PatrickJS/awesome-cursorrules)
-- [Next.js Cursor Rules Gist](https://gist.github.com/VidhyaKumar/1cc0394307ca91ef1c757ce3d0e6e85b)
-- [CursorRules Templates Hub](https://www.cursorrules.org/)
+- [Awesome CursorRules for Next.js and React](mdc:https:/github.com/PatrickJS/awesome-cursorrules)
+- [Next.js Cursor Rules Gist](mdc:https:/gist.github.com/VidhyaKumar/1cc0394307ca91ef1c757ce3d0e6e85b)
+- [CursorRules Templates Hub](mdc:https:/www.cursorrules.org)

@@ -1,11 +1,19 @@
-import { Invoice, CreateInvoiceDTO, UpdateInvoiceDTO } from '@/types/invoice/Invoice';
+import { Invoice, CreateInvoiceDTO, UpdateInvoiceDTO, Payment } from '@/types/invoice/Invoice';
 import { InvoiceRepository } from '@/types/invoice/InvoiceRepository';
+import { InvoiceRepositoryImpl } from '@/repositories/InvoiceRepositoryImpl';
 
 export class InvoiceService {
   constructor(private repository: InvoiceRepository) {}
 
-  async createInvoice(invoice: CreateInvoiceDTO): Promise<Invoice> {
-    this.validateInvoice(invoice);
+  async createInvoice(data: CreateInvoiceDTO): Promise<Invoice> {
+    const invoice: Invoice = {
+      ...data,
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      payments: [],
+      remainingBalance: data.total,
+    };
     return this.repository.create(invoice);
   }
 
@@ -13,64 +21,54 @@ export class InvoiceService {
     return this.repository.getById(id);
   }
 
-  async getAllInvoices(): Promise<Invoice[]> {
-    return this.repository.getAll();
-  }
-
-  async updateInvoice(id: string, invoice: UpdateInvoiceDTO): Promise<Invoice> {
-    if (invoice) {
-      this.validateInvoice(invoice as CreateInvoiceDTO);
-    }
-    return this.repository.update(id, invoice);
+  async updateInvoice(id: string, data: UpdateInvoiceDTO): Promise<Invoice> {
+    const updatedInvoice: Invoice = {
+      ...(await this.getInvoice(id))!,
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
+    return this.repository.update(id, data);
   }
 
   async deleteInvoice(id: string): Promise<void> {
     return this.repository.delete(id);
   }
 
+  async listInvoices(): Promise<Invoice[]> {
+    return this.repository.getAll();
+  }
+
   async getInvoicesByStatus(status: Invoice['status']): Promise<Invoice[]> {
     return this.repository.getByStatus(status);
   }
 
-  private validateInvoice(invoice: CreateInvoiceDTO): void {
-    if (!invoice.invoiceNumber) {
-      throw new Error('Invoice number is required');
-    }
+  async addPayment(invoiceId: string, payment: Omit<Payment, 'id'>): Promise<Invoice> {
+    const invoice = await this.getInvoice(invoiceId);
+    if (!invoice) throw new Error('Invoice not found');
 
-    if (!invoice.customerName) {
-      throw new Error('Customer name is required');
-    }
+    const newPayment: Payment = {
+      ...payment,
+      id: crypto.randomUUID(),
+    };
 
-    if (!invoice.customerEmail) {
-      throw new Error('Customer email is required');
-    }
+    const updatedPayments = [...invoice.payments, newPayment];
+    const totalPaid = updatedPayments.reduce((sum, p) => sum + p.amount, 0);
+    const remainingBalance = invoice.total - totalPaid;
 
-    if (!invoice.items || invoice.items.length === 0) {
-      throw new Error('At least one item is required');
-    }
+    const status = remainingBalance <= 0 ? 'paid' : 'partial';
 
-    if (invoice.taxRate < 0) {
-      throw new Error('Tax rate cannot be negative');
-    }
-
-    if (invoice.total < 0) {
-      throw new Error('Total amount cannot be negative');
-    }
-
-    // Validate dates
-    const invoiceDate = new Date(invoice.date);
-    const dueDate = new Date(invoice.dueDate);
-
-    if (isNaN(invoiceDate.getTime())) {
-      throw new Error('Invalid invoice date');
-    }
-
-    if (isNaN(dueDate.getTime())) {
-      throw new Error('Invalid due date');
-    }
-
-    if (dueDate < invoiceDate) {
-      throw new Error('Due date cannot be before invoice date');
-    }
+    return this.updateInvoice(invoiceId, {
+      payments: updatedPayments,
+      remainingBalance,
+      status,
+    });
   }
-} 
+
+  async getPaymentHistory(invoiceId: string): Promise<Payment[]> {
+    const invoice = await this.getInvoice(invoiceId);
+    return invoice?.payments || [];
+  }
+}
+
+// Export a singleton instance
+export const invoiceService = new InvoiceService(new InvoiceRepositoryImpl()); 
