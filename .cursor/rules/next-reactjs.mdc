@@ -182,6 +182,10 @@ alwaysApply: true
 
 ---
 
+## Rule 14: Make sure typescript null guards. 
+- ex. invoiceData.sender.companyName this will fails. 
+- please add proper null guards
+
 ## References
 - [Awesome CursorRules for Next.js and React](mdc:https:/github.com/PatrickJS/awesome-cursorrules)
 - [Next.js Cursor Rules Gist](mdc:https:/gist.github.com/VidhyaKumar/1cc0394307ca91ef1c757ce3d0e6e85b)

@@ -15,6 +15,7 @@ import {
   CreditCard,
   ShoppingCartIcon as Paypal,
   Settings2,
+  Building2,
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { TemplateSelector, TemplateOption } from './template-selector';
@@ -35,6 +36,9 @@ import { useAuth } from '@/contexts/auth-context';
 import { InvoiceNumberConfig } from "@/types/invoice"
 import { InvoiceNumberConfig as InvoiceNumberConfigComponent } from "@/components/invoice-number-config"
 import { InvoiceNumberService } from "@/lib/services/invoice-number-service"
+import { businessProfileApi } from "@/app/api/mocks/business-profile";
+import { BusinessProfile } from "@/app/api/mocks/business-profile";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -106,6 +110,9 @@ export default function InvoiceGenerator() {
     includeMonth: true,
     separator: "-"
   })
+  const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
+  const { toast } = useToast();
+  const [hasUnsavedProfileChanges, setHasUnsavedProfileChanges] = useState(false);
 
   // Sync invoiceData with currentInvoice when it changes
   useEffect(() => {
@@ -164,6 +171,49 @@ export default function InvoiceGenerator() {
     const savedConfig = service.getConfig()
     setInvoiceNumberConfig(savedConfig)
   }, [])
+
+  // Load business profile on mount
+  useEffect(() => {
+    const loadBusinessProfile = async () => {
+      try {
+        const profile = await businessProfileApi.getProfile();
+        setBusinessProfile(profile);
+        toast({
+          title: "Business Profile Loaded",
+          description: "Your business profile has been loaded successfully.",
+        });
+      } catch (error) {
+        console.error('Failed to load business profile:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load business profile. Please try again.",
+          variant: "destructive",
+        });
+      }
+    };
+    loadBusinessProfile();
+  }, []);
+
+  // Function to check if sender details differ from business profile
+  const checkProfileChanges = (sender: CompanyDetails) => {
+    if (!businessProfile) return false;
+    
+    return (
+      sender.firstName !== businessProfile.companyName ||
+      sender.email !== businessProfile.email ||
+      sender.phone !== businessProfile.phone ||
+      sender.address?.street !== businessProfile.address.street ||
+      sender.address?.city !== businessProfile.address.city ||
+      sender.address?.state !== businessProfile.address.state ||
+      sender.address?.zipCode !== businessProfile.address.postalCode ||
+      sender.address?.country !== businessProfile.address.country
+    );
+  };
+
+  // Update hasUnsavedProfileChanges when sender details change
+  useEffect(() => {
+    setHasUnsavedProfileChanges(checkProfileChanges(invoiceData.sender));
+  }, [invoiceData.sender, businessProfile]);
 
   const generatePDF = async () => {
     try {
@@ -224,6 +274,81 @@ export default function InvoiceGenerator() {
     }
   };
 
+  const handleUseBusinessProfile = () => {
+    if (!businessProfile) return;
+    
+    const senderDetails = {
+      firstName: businessProfile.companyName,
+      lastName: '',
+      email: businessProfile.email,
+      phone: businessProfile.phone,
+      address: {
+        street: businessProfile.address.street,
+        city: businessProfile.address.city,
+        state: businessProfile.address.state,
+        zipCode: businessProfile.address.postalCode,
+        country: businessProfile.address.country,
+      },
+    };
+
+    setInvoiceData(prev => ({ ...prev, sender: senderDetails }));
+    toast({
+      title: "Business Profile Applied",
+      description: "Your business profile details have been applied to the invoice.",
+    });
+  };
+
+  const handleSaveAsBusinessProfile = async () => {
+    try {
+      if (!invoiceData.sender.address) {
+        toast({
+          title: "Error",
+          description: "Please fill in all address details before saving as business profile.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const profileData = {
+        companyName: invoiceData.sender.companyName || invoiceData.sender.firstName,
+        email: invoiceData.sender.email,
+        phone: invoiceData.sender.phone || "",
+        address: {
+          street: invoiceData.sender.address.street || "",
+          city: invoiceData.sender.address.city || "",
+          state: invoiceData.sender.address.state || "",
+          postalCode: invoiceData.sender.address.zipCode || "",
+          country: invoiceData.sender.address.country || "",
+        },
+        taxInfo: {
+          taxId: "TAX" + Math.random().toString(36).substr(2, 9),
+          taxType: "VAT" as const,
+          taxRate: invoiceData.taxRate,
+          taxNumber: "",
+        },
+        logo: invoiceData.sender.logo || "",
+      };
+
+      await businessProfileApi.updateProfile(profileData);
+      setBusinessProfile(profileData as BusinessProfile);
+      setHasUnsavedProfileChanges(false);
+      
+      toast({
+        title: "Success",
+        description: "Your business profile has been saved successfully.",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Failed to save business profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save business profile. Please try again.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -261,20 +386,66 @@ export default function InvoiceGenerator() {
                   )}
                 </header>
 
-                <CompanyDetailsForm
-                  title="Your info"
-                  data={invoiceData.sender}
-                  onChange={(sender) =>
-                    setInvoiceData({ ...invoiceData, sender })
-                  }
-                />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-medium">Your info</h2>
+                    <div className="flex gap-2">
+                      {businessProfile ? (
+                        <>
+                          {hasUnsavedProfileChanges ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleSaveAsBusinessProfile}
+                              className="flex items-center gap-2"
+                            >
+                              <Building2 className="h-4 w-4" />
+                              Save Business Profile
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleUseBusinessProfile}
+                              className="flex items-center gap-2"
+                            >
+                              <Building2 className="h-4 w-4" />
+                              Use Business Profile
+                            </Button>
+                          )}
+                        </>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleSaveAsBusinessProfile}
+                          className="flex items-center gap-2"
+                        >
+                          <Building2 className="h-4 w-4" />
+                          Save as Business Profile
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  <CompanyDetailsForm
+                    title="Your Company Details"
+                    data={invoiceData.sender}
+                    onChange={(sender) =>
+                      setInvoiceData({ ...invoiceData, sender })
+                    }
+                    isBusinessProfile={true}
+                    showBusinessProfileIndicator={!!businessProfile}
+                  />
+                </div>
 
                 <CompanyDetailsForm
-                  title="Client info"
+                  title="Client Details"
                   data={invoiceData.client}
                   onChange={(client) =>
                     setInvoiceData({ ...invoiceData, client })
                   }
+                  isBusinessProfile={false}
+                  showBusinessProfileIndicator={false}
                 />
 
                 <section className="space-y-4" aria-label="Invoice Information">
