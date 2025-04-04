@@ -157,18 +157,18 @@ export const InvoicePreview: React.FC<TemplateProps> = ({ data, theme }) => {
                 <span className="text-sm text-gray-700">Subtotal</span>
                 <span className="text-gray-800">{formatCurrency(subtotal)}</span>
               </div>
-              {data.adjustments.map((adjustment) => {
+              {data.adjustments.map((adjustment, index) => {
                 const amount = adjustment.isPercentage
-                  ? (subtotal * adjustment.amount) / 100
-                  : adjustment.amount;
+                  ? (subtotal * adjustment.value) / 100
+                  : adjustment.value;
                 return (
-                  <div key={adjustment.id} className="flex justify-between">
+                  <div key={index} className="flex justify-between">
                     <span className="text-sm text-gray-700">
                       {adjustment.description}
-                      {adjustment.isPercentage && ` (${adjustment.amount}%)`}
+                      {adjustment.isPercentage && ` (${adjustment.value}%)`}
                     </span>
                     <span className="text-gray-800">
-                      {adjustment.type === 'deduction' ? '-' : ''}
+                      {adjustment.type === 'discount' ? '-' : '+'}
                       {formatCurrency(amount)}
                     </span>
                   </div>

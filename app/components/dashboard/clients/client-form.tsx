@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Client, clientSchema } from "@/app/api/mocks/clients";
+import { Client } from "@/app/api/mocks/clients";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
+import { z } from "zod";
 
 interface ClientFormProps {
   client?: Client;
@@ -21,12 +22,32 @@ interface ClientFormProps {
   isLoading?: boolean;
 }
 
+const clientFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email format"),
+  phone: z.string().min(1, "Phone is required"),
+  address: z.object({
+    street: z.string().min(1, "Street is required"),
+    city: z.string().min(1, "City is required"),
+    state: z.string().min(1, "State is required"),
+    postalCode: z.string().min(1, "Postal code is required"),
+    country: z.string().min(1, "Country is required"),
+  }),
+  taxInfo: z.object({
+    taxId: z.string().optional(),
+    taxRate: z.number().optional(),
+  }),
+  notes: z.string().optional(),
+});
+
+type FormData = z.infer<typeof clientFormSchema>;
+
 export function ClientForm({ client, onSubmit, isLoading = false }: ClientFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<Omit<Client, "id" | "createdAt" | "updatedAt">>({
-    resolver: zodResolver(clientSchema),
+  const form = useForm<FormData>({
+    resolver: zodResolver(clientFormSchema),
     defaultValues: client || {
       name: "",
       email: "",

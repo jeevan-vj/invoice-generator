@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BusinessProfile, businessProfileSchema } from "@/app/api/mocks/business-profile";
+import { BusinessProfile } from "@/app/api/mocks/business-profile";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
+import { z } from "zod";
 
 interface BusinessAddressFormProps {
   profile: BusinessProfile | null;
@@ -20,14 +21,24 @@ interface BusinessAddressFormProps {
   isLoading?: boolean;
 }
 
-type FormData = Pick<BusinessProfile, "address">;
+const addressSchema = z.object({
+  address: z.object({
+    street: z.string().min(1, "Street address is required"),
+    city: z.string().min(1, "City is required"),
+    state: z.string().min(1, "State is required"),
+    postalCode: z.string().min(1, "Postal code is required"),
+    country: z.string().min(1, "Country is required"),
+  }),
+});
+
+type FormData = z.infer<typeof addressSchema>;
 
 export function BusinessAddressForm({ profile, onUpdate, isLoading = false }: BusinessAddressFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormData>({
-    resolver: zodResolver(businessProfileSchema),
+    resolver: zodResolver(addressSchema),
     defaultValues: {
       address: {
         street: profile?.address.street ?? "",

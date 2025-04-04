@@ -42,6 +42,7 @@ export type InvoiceAdjustment = {
 };
 
 export interface Adjustment extends InvoiceAdjustment {
+  amount: number
   value: number;
 }
 

@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { X } from "lucide-react"
+import { DateRange } from "react-day-picker"
 
 interface InvoiceFiltersProps {
   onApply: (filters: any) => void
@@ -22,8 +23,8 @@ interface InvoiceFiltersProps {
 }
 
 export default function InvoiceFilters({ onApply, onReset }: InvoiceFiltersProps) {
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | undefined>()
-  const [amountRange, setAmountRange] = useState<[number, number]>([0, 10000])
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
+  const [amountRange, setAmountRange] = useState<number[]>([0, 10000])
   const [status, setStatus] = useState<string>("all")
   const [client, setClient] = useState<string>("")
   const [showOverdueOnly, setShowOverdueOnly] = useState(false)

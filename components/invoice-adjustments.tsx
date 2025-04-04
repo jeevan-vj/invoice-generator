@@ -10,14 +10,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { InvoiceAdjustment } from '@/types/invoice';
+import { Adjustment } from '@/types/invoice';
 import { Plus, Trash2 } from 'lucide-react';
 import { formatCurrency } from '@/utils/calculations';
 
 interface InvoiceAdjustmentsProps {
-  adjustments: InvoiceAdjustment[];
+  adjustments: Adjustment[];
   subtotal: number;
-  onAdjustmentsChange: (adjustments: InvoiceAdjustment[]) => void;
+  onAdjustmentsChange: (adjustments: Adjustment[]) => void;
 }
 
 export function InvoiceAdjustments({
@@ -28,10 +28,10 @@ export function InvoiceAdjustments({
   const [isAdding, setIsAdding] = useState(false);
 
   const addAdjustment = () => {
-    const newAdjustment: InvoiceAdjustment = {
-      id: crypto.randomUUID(),
-      type: 'addition',
+    const newAdjustment: Adjustment = {
+      type: 'fee',
       description: '',
+      value: 0,
       amount: 0,
       isPercentage: false,
     };
@@ -40,26 +40,25 @@ export function InvoiceAdjustments({
   };
 
   const updateAdjustment = (
-    id: string,
-    field: keyof InvoiceAdjustment,
+    index: number,
+    field: keyof Adjustment,
     value: any
   ) => {
-    onAdjustmentsChange(
-      adjustments.map((adj) =>
-        adj.id === id ? { ...adj, [field]: value } : adj
-      )
+    const updatedAdjustments = adjustments.map((adj, i) =>
+      i === index ? { ...adj, [field]: value } : adj
     );
+    onAdjustmentsChange(updatedAdjustments);
   };
 
-  const removeAdjustment = (id: string) => {
-    onAdjustmentsChange(adjustments.filter((adj) => adj.id !== id));
+  const removeAdjustment = (index: number) => {
+    onAdjustmentsChange(adjustments.filter((_, i) => i !== index));
   };
 
-  const calculateAdjustmentAmount = (adjustment: InvoiceAdjustment): number => {
+  const calculateAdjustmentAmount = (adjustment: Adjustment): number => {
     if (adjustment.isPercentage) {
-      return (subtotal * adjustment.amount) / 100;
+      return (subtotal * adjustment.value) / 100;
     }
-    return adjustment.amount;
+    return adjustment.value;
   };
 
   return (
@@ -78,24 +77,27 @@ export function InvoiceAdjustments({
       </div>
 
       <div className="space-y-4">
-        {adjustments.map((adjustment) => (
+        {adjustments.map((adjustment, index) => (
           <div
-            key={adjustment.id}
+            key={index}
             className="grid grid-cols-12 gap-4 items-center"
           >
             <div className="col-span-2">
               <Select
                 value={adjustment.type}
-                onValueChange={(value: 'addition' | 'deduction') =>
-                  updateAdjustment(adjustment.id, 'type', value)
+                onValueChange={(value: 'discount' | 'tax' | 'shipping' | 'fee' | 'other') =>
+                  updateAdjustment(index, 'type', value)
                 }
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="addition">Addition</SelectItem>
-                  <SelectItem value="deduction">Deduction</SelectItem>
+                  <SelectItem value="discount">Discount</SelectItem>
+                  <SelectItem value="tax">Tax</SelectItem>
+                  <SelectItem value="shipping">Shipping</SelectItem>
+                  <SelectItem value="fee">Fee</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -105,7 +107,7 @@ export function InvoiceAdjustments({
                 placeholder="Description"
                 value={adjustment.description}
                 onChange={(e) =>
-                  updateAdjustment(adjustment.id, 'description', e.target.value)
+                  updateAdjustment(index, 'description', e.target.value)
                 }
               />
             </div>
@@ -114,20 +116,18 @@ export function InvoiceAdjustments({
               <div className="flex items-center gap-2">
                 <Input
                   type="number"
-                  value={adjustment.amount}
-                  onChange={(e) =>
-                    updateAdjustment(
-                      adjustment.id,
-                      'amount',
-                      parseFloat(e.target.value) || 0
-                    )
-                  }
+                  value={adjustment.value}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value) || 0;
+                    updateAdjustment(index, 'value', value);
+                    updateAdjustment(index, 'amount', value);
+                  }}
                 />
                 <div className="flex items-center gap-2">
                   <Switch
                     checked={adjustment.isPercentage}
                     onCheckedChange={(checked) =>
-                      updateAdjustment(adjustment.id, 'isPercentage', checked)
+                      updateAdjustment(index, 'isPercentage', checked)
                     }
                   />
                   <Label>%</Label>
@@ -144,7 +144,7 @@ export function InvoiceAdjustments({
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={() => removeAdjustment(adjustment.id)}
+                onClick={() => removeAdjustment(index)}
               >
                 <Trash2 className="h-4 w-4 text-destructive" />
               </Button>

@@ -22,8 +22,9 @@ export interface InvoiceItem {
 
 export interface InvoiceAdjustment {
   id: string;
-  type: 'addition' | 'deduction';
+  type: 'discount' | 'tax' | 'shipping' | 'fee' | 'other';
   description: string;
+  value: number;
   amount: number;
   isPercentage: boolean;
 }
