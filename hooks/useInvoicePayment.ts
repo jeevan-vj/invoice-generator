@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Payment } from '@/types/invoice/Invoice';
-import { invoiceService } from '@/services/invoiceService';
+import { invoiceService } from '@/services/InvoiceService';
 
 export function useInvoicePayment() {
   const queryClient = useQueryClient();
