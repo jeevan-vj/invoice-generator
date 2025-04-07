@@ -15,7 +15,7 @@ export function useInvoice(id: string) {
 export function useInvoices() {
   return useQuery({
     queryKey: ['invoices'],
-    queryFn: () => invoiceService.getAllInvoices(),
+    queryFn: () => invoiceService.listInvoices(),
   });
 }
 
