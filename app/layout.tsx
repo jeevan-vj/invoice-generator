@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     siteName: 'Free Invoice Generator',
     images: [
       {
-        url: 'https://yourdomain.com/og-image.png',
+        url: 'https://invoice-generator.iamjeevan.com/og-image.png',
         width: 1200,
         height: 630,
         alt: 'Free Invoice Generator Preview',
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     title: 'Free Invoice Generator | Create Professional Invoices Online',
     description:
       'Create and download professional invoices for free. Generate PDF invoices instantly.',
-    images: ['https://yourdomain.com/twitter-image.png'],
+    images: ['https://invoice-generator.iamjeevan.com/twitter-image.png'],
   },
   robots: {
     index: true,
